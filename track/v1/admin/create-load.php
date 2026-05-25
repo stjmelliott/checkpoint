@@ -25,36 +25,30 @@ Logger::write('app.log', 'INFO', 'Manual load creation requested', ['checkpoint'
 
 $carrierName = trim((string)($input['carrier_name'] ?? ''));
 $loadNumber = trim((string)($input['load_number'] ?? ''));
-if ($carrierName === '' || $loadNumber === '') {
+if ($carrierName === '') {
     http_response_code(422);
-    echo json_encode(['success' => false, 'message' => 'Carrier Name and Load Number are required']);
+    echo json_encode(['success' => false, 'message' => 'Carrier Name is required']);
     exit;
 }
+if ($loadNumber === '') {
+    $loadNumber = 'PENDING-' . gmdate('YmdHis');
+}
 
-$driverPhone = trim((string)($input['driver_phone'] ?? ''));
-if (!preg_match('/^\+[1-9]\d{1,14}$/', $driverPhone)) {
+$driverPhone = preg_replace('/\D+/', '', (string)($input['driver_phone'] ?? ''));
+if (strlen($driverPhone) !== 10) {
     http_response_code(422);
     echo json_encode(['success' => false, 'message' => 'Invalid driver_phone format']);
     exit;
 }
 
 $stops = $input['stop'] ?? [];
-if (!is_array($stops) || count($stops) < 2) {
-    http_response_code(422);
-    echo json_encode(['success' => false, 'message' => 'At least 2 stops are required']);
-    exit;
+if (!is_array($stops) || count($stops) === 0) {
+    $stops = [['milestone' => 'delivery', 'city' => 'Pending Details', 'state' => 'Pending Details', 'scheduled_at' => '']];
 }
-$deliveryCount = 0;
 foreach ($stops as $k => $s) {
-    if (($s['milestone'] ?? '') === 'delivery') $deliveryCount++;
-    $stops[$k]['city'] = trim((string)($s['city'] ?? '')) !== '' ? trim((string)$s['city']) : 'Unknown City';
-    $stops[$k]['state'] = trim((string)($s['state'] ?? '')) !== '' ? trim((string)$s['state']) : 'US';
-}
-
-if ($deliveryCount !== 1) {
-    http_response_code(422);
-    echo json_encode(['success' => false, 'message' => 'Exactly one delivery stop is required']);
-    exit;
+    $stops[$k]['milestone'] = trim((string)($s['milestone'] ?? '')) !== '' ? trim((string)$s['milestone']) : 'transit';
+    $stops[$k]['city'] = trim((string)($s['city'] ?? '')) !== '' ? trim((string)$s['city']) : 'Pending Details';
+    $stops[$k]['state'] = trim((string)($s['state'] ?? '')) !== '' ? trim((string)$s['state']) : 'Pending Details';
 }
 
 $carrierId = (int)($input['carrier_id'] ?? 0);
@@ -68,7 +62,9 @@ if ($carrierId === 0) {
 $driverId = (int)($input['driver_id'] ?? 0);
 if ($driverId === 0) {
     $stmt = $pdo->prepare("INSERT INTO track_carrier_drivers (company_id, carrier_id, driver_name, driver_phone, driver_email, is_active, created_at) VALUES (?, ?, ?, ?, ?, 1, NOW())");
-    $stmt->execute([$companyId, $carrierId, trim((string)$input['driver_name']), $driverPhone, trim((string)($input['driver_email'] ?? ''))]);
+    $driverName = trim((string)($input['driver_name'] ?? '')) !== '' ? trim((string)$input['driver_name']) : 'Unknown Driver';
+$driverEmail = trim((string)($input['driver_email'] ?? '')) !== '' ? trim((string)$input['driver_email']) : 'Pending Details';
+    $stmt->execute([$companyId, $carrierId, $driverName, $driverPhone, $driverEmail]);
     $driverId = (int)$pdo->lastInsertId();
     Logger::write('app.log', 'INFO', 'Driver created', ['checkpoint' => 4, 'company_id' => $companyId, 'driver_id' => $driverId]);
 }
@@ -77,9 +73,9 @@ $payload = [
     'company_id' => $companyId,
     'load_number' => $loadNumber,
     'carrier_name' => $carrierName,
-    'driver_name' => trim((string)($input['driver_name'] ?? '')),
+    'driver_name' => trim((string)($input['driver_name'] ?? '')) !== '' ? trim((string)$input['driver_name']) : 'Unknown Driver',
     'driver_phone' => $driverPhone,
-    'driver_email' => trim((string)($input['driver_email'] ?? '')),
+    'driver_email' => trim((string)($input['driver_email'] ?? '')) !== '' ? trim((string)$input['driver_email']) : 'Pending Details',
     'stops' => array_values($stops),
     'carrier_id' => $carrierId,
     'driver_id' => $driverId,

@@ -182,3 +182,23 @@ body { margin: 0; background: var(--deep-bg); color: #ddffdd; font-family: syste
 .carrier-results{display:grid;gap:6px;margin:8px 0}
 .carrier-result{width:100%;text-align:left}
 .new-driver-form{display:block;transition:all .2s ease}
+
+.manual-modal-card,
+.console-hub-modal-card{
+  background: rgba(16, 22, 32, 0.95);
+  border: 1px solid #00ffcc;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.manual-modal-head,
+.console-hub-modal-head{position:relative;overflow:hidden}
+.manual-modal-head::before,
+.console-hub-modal-head::before{content:'';position:absolute;top:-30%;left:-42%;width:24%;height:160%;transform:skewX(-24deg);background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7),rgba(255,255,255,0));animation:modalSweep 6s linear infinite}
+.manual-panel input,.manual-panel select,.stop-row input,.stop-row select,.console-hub-settings input,.console-hub-settings select{
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(0,255,204,.25);
+  color: #eafaf6;
+}
+.manual-panel input:focus,.manual-panel select:focus,.stop-row input:focus,.stop-row select:focus,.console-hub-settings input:focus,.console-hub-settings select:focus{
+  box-shadow: 0 0 0 2px rgba(0,255,204,.45),0 0 18px rgba(0,255,204,.35);
+}

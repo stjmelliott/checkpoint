@@ -1,0 +1,24 @@
+# Runtime logs
+logs/
+track/logs/
+*.log
+
+# Temporary/cache files
+tmp/
+temp/
+cache/
+
+# Backup/export files
+*.bak
+*.backup
+*.zip
+*.tar
+*.tar.gz
+*.sql
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+

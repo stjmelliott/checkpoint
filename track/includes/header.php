@@ -32,13 +32,13 @@ if (!isset($checkpointHeaderCurrent)) {
         </nav>
         <div class="checkpoint-admin-actions">
         <button class="btn btn-outline-warning btn-sm mx-2" id="gitPullBridgeBtn"><span class="glyphicon glyphicon-refresh"></span> Sync Git Live</button>
-        <button class="btn btn-outline-info btn-sm mx-2" id="consoleHubBtn">Console System Hub</button>
+        <button class="btn btn-outline-info btn-sm mx-2" id="consoleHubBtn" data-bs-toggle="modal" data-bs-target="#settingsHubModal">Console System Hub</button>
         </div>
     </div>
 </header>
 
 
-<div id="consoleHubModal" class="manual-modal hidden" aria-hidden="true">
+<div id="settingsHubModal" class="manual-modal hidden" aria-hidden="true">
   <div class="manual-modal-card console-hub-modal">
     <div class="manual-modal-head"><h4>Console System Hub</h4><button id="consoleHubClose" class="manual-close-btn">×</button></div>
     <form id="consoleHubSettingsForm" class="console-hub-settings">
@@ -168,12 +168,12 @@ document.addEventListener('DOMContentLoaded', function(){
   const hubBtn=document.getElementById('consoleHubBtn');
   if(hubBtn){
     hubBtn.addEventListener('click',()=>{
-      const modal=document.getElementById('consoleHubModal');
+      const modal=document.getElementById('settingsHubModal');
       if(modal){ modal.classList.remove('hidden'); }
     });
   }
   const hubClose=document.getElementById('consoleHubClose');
-  if(hubClose){hubClose.addEventListener('click',()=>document.getElementById('consoleHubModal')?.classList.add('hidden'));}
+  if(hubClose){hubClose.addEventListener('click',()=>document.getElementById('settingsHubModal')?.classList.add('hidden'));}
   const saveForm=document.getElementById('consoleHubSettingsForm');
   if(saveForm){
     saveForm.addEventListener('submit', async (e)=>{

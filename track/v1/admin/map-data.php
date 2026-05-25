@@ -2,7 +2,11 @@
 require_once __DIR__ . '/../../../config/bootstrap.php';
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['company_id'])) {
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
+if (!isset($_SESSION['company_id']) || (int)$_SESSION['company_id'] <= 0) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
@@ -28,28 +32,34 @@ try {
     }
 
     $sql = "
-        SELECT 
+        SELECT
             s.load_number,
             s.carrier_name,
             s.driver_name,
-            s.status,
-            p.lat AS latest_lat,
-            p.lng AS latest_lng,
-            p.milestone_type AS latest_milestone,
-            p.stop_sequence AS latest_stop,
-            p.timestamp AS last_checkin,
-            (SELECT COUNT(*) FROM track_location_pings 
-             WHERE load_number = s.load_number AND company_id = ?) AS ping_count
+            s.status AS checkin_status,
+            latest_ping.lat AS latest_lat,
+            latest_ping.lng AS latest_lng,
+            latest_ping.milestone_type AS latest_milestone,
+            latest_ping.stop_sequence AS latest_stop,
+            latest_ping.timestamp AS last_checkin,
+            COALESCE(ping_totals.ping_count, 0) AS ping_count
         FROM track_load_snapshots s
         LEFT JOIN (
-            SELECT p1.* FROM track_location_pings p1
+            SELECT p.company_id, p.load_number, p.lat, p.lng, p.milestone_type, p.stop_sequence, p.timestamp
+            FROM track_location_pings p
             INNER JOIN (
-                SELECT load_number, MAX(id) as max_id 
-                FROM track_location_pings 
+                SELECT company_id, load_number, MAX(id) AS max_id
+                FROM track_location_pings
                 WHERE company_id = ?
-                GROUP BY load_number
-            ) p2 ON p1.id = p2.max_id
-        ) p ON p.load_number = s.load_number
+                GROUP BY company_id, load_number
+            ) latest ON latest.company_id = p.company_id AND latest.load_number = p.load_number AND latest.max_id = p.id
+        ) latest_ping ON latest_ping.company_id = s.company_id AND latest_ping.load_number = s.load_number
+        LEFT JOIN (
+            SELECT company_id, load_number, COUNT(*) AS ping_count
+            FROM track_location_pings
+            WHERE company_id = ?
+            GROUP BY company_id, load_number
+        ) ping_totals ON ping_totals.company_id = s.company_id AND ping_totals.load_number = s.load_number
         WHERE $where
         ORDER BY s.created_at DESC
     ";
@@ -58,7 +68,10 @@ try {
     $stmt->execute(array_merge([$company_id, $company_id], $params));
     $loads = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode(['success' => true, 'loads' => $loads]);
+    echo json_encode([
+        'success' => true,
+        'loads' => $loads,
+    ]);
 
 } catch (Exception $e) {
     http_response_code(500);

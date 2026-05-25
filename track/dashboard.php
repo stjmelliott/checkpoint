@@ -62,52 +62,53 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <div id="addLoadModal" class="manual-modal hidden" aria-hidden="true">
-    <div class="manual-modal-card">
-        <div class="manual-modal-head">
-            <h4>Add Load</h4>
-            <button id="manual-close-btn" class="manual-close-btn">×</button>
+    <div class="manual-modal-card modal-content" role="dialog" aria-modal="true" aria-labelledby="addLoadTitle">
+        <div class="manual-modal-head modal-header">
+            <h4 id="addLoadTitle" class="modal-title">Add Load</h4>
+            <button id="manual-close-btn" class="manual-close-btn" type="button" aria-label="Close">×</button>
         </div>
-        <div class="manual-tabs">
-            <button class="manual-tab active" data-panel="1">1. Carrier</button>
-            <button class="manual-tab" data-panel="2">2. Driver</button>
-            <button class="manual-tab" data-panel="3">3. Load</button>
+        <div class="manual-tabs wizard-progress-bar" aria-label="Load creation steps">
+            <button class="manual-tab wizard-step-node active" data-panel="1" type="button">1. Carrier</button>
+            <button class="manual-tab wizard-step-node" data-panel="2" type="button">2. Driver</button>
+            <button class="manual-tab wizard-step-node" data-panel="3" type="button">3. Load</button>
         </div>
-        <form id="manual-load-form">
+        <form id="manual-load-form" class="modal-body">
             <div class="manual-panel" data-panel="1">
                 <input type="hidden" name="carrier_id" id="carrier_id" value="0">
-                <label>Carrier Name <input type="text" name="carrier_name" id="carrier_name" required autocomplete="off"></label>
+                <label>Carrier Name <input class="form-control" type="text" name="carrier_name" id="carrier_name" required autocomplete="off"></label>
                 <div id="carrier-results" class="carrier-results"></div>
                 <div class="manual-inline-actions">
-                    <button type="button" id="fmcsa-btn">Search FMCSA Registry</button>
-                    <button type="button" id="manualCarrierEntry">Use Manual Carrier Entry</button>
+                    <button type="button" id="fmcsa-btn" class="btn btn-outline-primary">Search FMCSA Registry</button>
+                    <button type="button" id="manualCarrierEntry" class="btn btn-outline-primary">Use Manual Carrier Entry</button>
                 </div>
-                <label>DOT Number <input type="text" name="dot_number" id="dot_number"></label>
+                <label>DOT Number <input class="form-control" type="text" name="dot_number" id="dot_number"></label>
             </div>
             <div class="manual-panel hidden" data-panel="2">
                 <input type="hidden" name="driver_id" id="driver_id" value="0">
                 <label>Active Driver Profile
-                    <select id="driver_select"><option value="0">+ New Driver</option></select>
+                    <select id="driver_select" class="form-select"><option value="0">+ New Driver</option></select>
                 </label>
                 <div id="new-driver-form" class="new-driver-form">
-                    <label>Driver Name <input type="text" name="driver_name" id="driver_name"></label>
-                    <label>Driver Phone <input type="text" name="driver_phone" id="driver_phone" placeholder="6124446655" required></label>
-                    <label>Driver Email <input type="email" name="driver_email" id="driver_email"></label>
+                    <label>Driver Name <input class="form-control" type="text" name="driver_name" id="driver_name"></label>
+                    <label>Driver Phone <input class="form-control" type="text" name="driver_phone" id="driver_phone" placeholder="6124446655" required></label>
+                    <label>Driver Email <input class="form-control" type="email" name="driver_email" id="driver_email"></label>
                 </div>
             </div>
             <div class="manual-panel hidden" data-panel="3">
-                <label>Load Number <input type="text" name="load_number" id="load_number" required></label>
+                <label>Load Number <input class="form-control" type="text" name="load_number" id="load_number" required></label>
                 <div id="stops-wrap"></div>
-                <button type="button" id="add-stop-btn">+ Add Stop</button>
+                <button type="button" id="add-stop-btn" class="btn btn-success">+ Add Stop</button>
             </div>
             <div class="manual-error" id="manual-error"></div>
             <div class="manual-actions">
                 <button type="button" id="manual-clear-btn" class="btn-clear-form">Clear Form / Start Over</button>
-                <button type="button" id="manual-back-btn">Back</button>
-                <button type="button" id="manual-next-btn">Next</button>
-                <button type="submit" id="manual-submit-btn" class="hidden">Create Load</button>
+                <button type="button" id="manual-back-btn" class="btn btn-outline-primary">Back</button>
+                <button type="button" id="manual-next-btn" class="btn btn-success">Next</button>
+                <button type="submit" id="manual-submit-btn" class="btn btn-success hidden">Create Load</button>
             </div>
         </form>
     </div>
+</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

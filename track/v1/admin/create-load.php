@@ -1,6 +1,6 @@
 <?php
-require_once '../../config/bootstrap.php';
-require_once '../../lib/initialize_logic.php';
+require_once __DIR__ . '/../../../config/bootstrap.php';
+require_once __DIR__ . '/../../lib/initialize_logic.php';
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['company_id']) || (($_SESSION['role'] ?? '') !== 'admin')) {

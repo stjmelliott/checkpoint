@@ -20,6 +20,10 @@ header('Content-Type: text/html; charset=utf-8');
     </style>
 </head>
 <body>
+<?php
+$checkpointHeaderCurrent = 'Test Dashboard';
+require_once __DIR__ . '/includes/header.php';
+?>
 <div class="container">
     <h1>🚀 EXSPEEDITE CHECKPOINT — Master Test Dashboard</h1>
     <p style="text-align:center; color:#94a3b8;">Tasks 1–9 are now fully wired.</p>

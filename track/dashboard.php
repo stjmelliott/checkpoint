@@ -11,12 +11,10 @@
 </head>
 <body>
 
-<div class="header">
-    <img src="/images/Exspeedite_logo.png" alt="Exspeedite Logo">
-    <div class="logo-text">
-        <span class="logo-check">CHECK</span><span class="logo-point">POINT</span>
-    </div>
-</div>
+<?php
+$checkpointHeaderCurrent = 'Live Map';
+require_once __DIR__ . '/includes/header.php';
+?>
 
 <div id="map"></div>
 

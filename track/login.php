@@ -29,10 +29,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: #0f172a; color: #e2e8f0; font-family: system-ui; }
-        .login-card { max-width: 420px; margin: 120px auto; background: rgba(15,23,42,0.95); border: 1px solid #00c853; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .login-card { max-width: 420px; margin: 56px auto; background: rgba(15,23,42,0.95); border: 1px solid #00c853; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
     </style>
 </head>
 <body>
+<?php
+$checkpointHeaderCurrent = 'Login';
+require_once __DIR__ . '/includes/header.php';
+?>
 <div class="container">
     <div class="login-card card p-5">
         <h2 class="text-center mb-4" style="color:#00c853">EXSPEEDITE CHECKPOINT</h2>

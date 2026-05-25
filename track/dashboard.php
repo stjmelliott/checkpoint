@@ -40,8 +40,8 @@ require_once __DIR__ . '/includes/header.php';
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h3 style="margin:0; color:#22c55e;">Loads</h3>
         <div style="display:flex; gap:8px;">
-            <?php if (in_array($load_entry_mode, ['manual', 'both'], true)): ?>
-            <button class="btn btn-success btn-sm" id="ADD_LOAD_BTN" data-bs-toggle="modal" data-bs-target="#addLoadModal"><span class="glyphicon glyphicon-plus"></span> Add Load</button>
+            <?php if (isset($load_entry_mode) && in_array($load_entry_mode, ['manual', 'both'])): ?>
+            <button class="btn btn-success btn-sm" id="ADD_LOAD_BTN" data-bs-toggle="modal" data-bs-target="#addLoadModal" style="background:#22c55e; color:#ffffff; font-weight:600; padding:6px 12px; border:none; border-radius:4px; margin-left:6px;">+ Add Load</button>
             <?php endif; ?>
             <a href="help-dashboard-logic.php" target="_blank">
                 <button style="background:#334155; padding:8px 16px;">Help</button>

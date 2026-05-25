@@ -169,3 +169,16 @@ body { margin: 0; background: var(--deep-bg); color: #ddffdd; font-family: syste
     color: #00ffcc !important;
     text-shadow: 0 0 8px rgba(0, 255, 204, 0.4) !important;
 }
+.console-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.console-hub-grid a{padding:10px;border:1px solid rgba(0,255,204,.45);border-radius:8px;color:#a7f3d0;text-decoration:none;background:rgba(20,28,40,.6)}
+.console-hub-settings input{width:100%;margin:6px 0 10px}
+.manual-modal-card{background:rgba(16,22,32,.86);backdrop-filter:blur(12px);border:1px solid #00ffcc;box-shadow:0 0 25px rgba(0,255,204,.2)}
+.manual-modal-head{position:relative;overflow:hidden;border-bottom:1px solid rgba(0,255,204,.3);padding-bottom:8px}
+.manual-modal-head::after{content:'';position:absolute;top:-20%;left:-35%;width:20%;height:140%;transform:skewX(-22deg);background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.78),rgba(255,255,255,0));animation:modalSweep 6s linear infinite}
+@keyframes modalSweep{from{left:-40%}to{left:140%}}
+.manual-panel input,.manual-panel select,.stop-row input,.stop-row select{background:rgba(255,255,255,.06);border:1px solid rgba(0,255,204,.2)}
+.manual-panel input:focus,.manual-panel select:focus,.stop-row input:focus,.stop-row select:focus{outline:none;box-shadow:0 0 0 2px rgba(0,255,204,.4);border-color:#00ffcc}
+.btn-clear-form{background:linear-gradient(145deg,#4a0e16,#7f1d1d)!important;border-color:#ef4444!important;color:#fecaca!important}
+.carrier-results{display:grid;gap:6px;margin:8px 0}
+.carrier-result{width:100%;text-align:left}
+.new-driver-form{display:block;transition:all .2s ease}

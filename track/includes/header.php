@@ -1,10 +1,10 @@
 <?php
 if (!isset($checkpointHeaderLinks)) {
     $checkpointHeaderLinks = [
-        ['label' => 'Home', 'href' => '/index.php'],
-        ['label' => 'Login', 'href' => '/login.php'],
-        ['label' => 'Live Map', 'href' => '/dashboard.php'],
-        ['label' => 'Test Dashboard', 'href' => '/test-dashboard.php'],
+        ['label' => 'Home', 'href' => 'index.php'],
+        ['label' => 'Login', 'href' => 'login.php'],
+        ['label' => 'Live Map', 'href' => 'dashboard.php'],
+        ['label' => 'Test Dashboard', 'href' => 'test-dashboard.php'],
     ];
 }
 
@@ -15,7 +15,7 @@ if (!isset($checkpointHeaderCurrent)) {
 <header class="checkpoint-header-shell">
     <div class="checkpoint-header-inner">
         <div class="checkpoint-brand-wrap">
-            <img src="/images/Exspeedite_logo.png" alt="Exspeedite Logo" class="checkpoint-logo" loading="lazy">
+            <img src="images/Exspeedite_logo.png" alt="Exspeedite Logo" class="checkpoint-logo" loading="lazy">
             <div class="checkpoint-brand-text">
                 <span class="logo-check">CHECK</span><span class="logo-point">POINT</span>
                 <small class="checkpoint-tagline">Dispatch Intelligence Console</small>
@@ -30,9 +30,32 @@ if (!isset($checkpointHeaderCurrent)) {
                 </a>
             <?php endforeach; ?>
         </nav>
+        <div class="checkpoint-admin-actions">
         <button class="btn btn-outline-warning btn-sm mx-2" id="gitPullBridgeBtn"><span class="glyphicon glyphicon-refresh"></span> Sync Git Live</button>
+        <button class="btn btn-outline-info btn-sm mx-2" id="consoleHubBtn">Console System Hub</button>
+        </div>
     </div>
 </header>
+
+
+<div id="consoleHubModal" class="manual-modal hidden" aria-hidden="true">
+  <div class="manual-modal-card console-hub-modal">
+    <div class="manual-modal-head"><h4>Console System Hub</h4><button id="consoleHubClose" class="manual-close-btn">×</button></div>
+    <form id="consoleHubSettingsForm" class="console-hub-settings">
+      <label>FMCSA API Key <input type="text" name="fmcsa_api_key" placeholder="Enter FMCSA key"></label>
+      <button type="submit" class="btn btn-success btn-sm">Save Registry Key</button>
+      <div id="consoleHubStatus" class="manual-error"></div>
+    </form>
+    <div class="console-hub-grid">
+      <a href="dashboard.php">Dashboard Panel</a>
+      <a href="admin-settings.php">Admin Settings Panel</a>
+      <a href="v1/admin/fmcsa-search.php?q=ab" target="_blank">FMCSA Proxy Lookup</a>
+      <a href="v1/admin/carrier-drivers.php?carrier_id=1" target="_blank">Carrier Drivers Dropdown List</a>
+      <a href="v1/admin/create-load.php" target="_blank">Manual Load Submission Handler</a>
+      <a href="v1/admin/git-pull-bridge.php" target="_blank">Git Deployment Synchronizer</a>
+    </div>
+  </div>
+</div>
 
 <style>
 :root {
@@ -133,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function(){
   btn.addEventListener('click', async function(){
     if(!window.confirm('Sync live code from Git now?')) return;
     try{
-      const res=await fetch('/v1/admin/git-pull-bridge.php');
+      const res=await fetch('v1/admin/git-pull-bridge.php');
       const data=await res.json();
       alert((data.output||'No output') + '\n\nSuccess: ' + (!!data.success));
       window.location.reload(true);
@@ -141,5 +164,28 @@ document.addEventListener('DOMContentLoaded', function(){
       alert('Sync failed: '+e.message);
     }
   });
+
+  const hubBtn=document.getElementById('consoleHubBtn');
+  if(hubBtn){
+    hubBtn.addEventListener('click',()=>{
+      const modal=document.getElementById('consoleHubModal');
+      if(modal){ modal.classList.remove('hidden'); }
+    });
+  }
+  const hubClose=document.getElementById('consoleHubClose');
+  if(hubClose){hubClose.addEventListener('click',()=>document.getElementById('consoleHubModal')?.classList.add('hidden'));}
+  const saveForm=document.getElementById('consoleHubSettingsForm');
+  if(saveForm){
+    saveForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd=new FormData(saveForm);
+      const status=document.getElementById('consoleHubStatus');
+      try{
+        const res=await fetch('v1/admin/save-settings.php',{method:'POST',body:fd});
+        const data=await res.json();
+        status.textContent=data.success ? 'FMCSA API key saved.' : (data.message||'Save failed');
+      }catch(err){status.textContent='Save failed: '+err.message;}
+    });
+  }
 });
 </script>

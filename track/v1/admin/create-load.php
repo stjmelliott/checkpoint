@@ -22,6 +22,15 @@ if ($mode === 'webhook') {
 $input = $_POST;
 Logger::write('app.log', 'INFO', 'Manual load creation requested', ['checkpoint' => 1, 'company_id' => $companyId, 'user_id' => $_SESSION['user_id'] ?? null]);
 
+
+$carrierName = trim((string)($input['carrier_name'] ?? ''));
+$loadNumber = trim((string)($input['load_number'] ?? ''));
+if ($carrierName === '' || $loadNumber === '') {
+    http_response_code(422);
+    echo json_encode(['success' => false, 'message' => 'Carrier Name and Load Number are required']);
+    exit;
+}
+
 $driverPhone = trim((string)($input['driver_phone'] ?? ''));
 if (!preg_match('/^\+[1-9]\d{1,14}$/', $driverPhone)) {
     http_response_code(422);
@@ -36,9 +45,12 @@ if (!is_array($stops) || count($stops) < 2) {
     exit;
 }
 $deliveryCount = 0;
-foreach ($stops as $s) {
+foreach ($stops as $k => $s) {
     if (($s['milestone'] ?? '') === 'delivery') $deliveryCount++;
+    $stops[$k]['city'] = trim((string)($s['city'] ?? '')) !== '' ? trim((string)$s['city']) : 'Unknown City';
+    $stops[$k]['state'] = trim((string)($s['state'] ?? '')) !== '' ? trim((string)$s['state']) : 'US';
 }
+
 if ($deliveryCount !== 1) {
     http_response_code(422);
     echo json_encode(['success' => false, 'message' => 'Exactly one delivery stop is required']);
@@ -48,7 +60,7 @@ if ($deliveryCount !== 1) {
 $carrierId = (int)($input['carrier_id'] ?? 0);
 if ($carrierId === 0) {
     $stmt = $pdo->prepare("INSERT INTO track_carriers (company_id, carrier_name, dot_number, source, created_at) VALUES (?, ?, ?, 'manual', NOW())");
-    $stmt->execute([$companyId, trim((string)($input['carrier_name'] ?? '')), trim((string)($input['dot_number'] ?? ''))]);
+    $stmt->execute([$companyId, $carrierName, trim((string)($input['dot_number'] ?? ''))]);
     $carrierId = (int)$pdo->lastInsertId();
     Logger::write('app.log', 'INFO', 'Carrier created', ['checkpoint' => 3, 'company_id' => $companyId, 'carrier_id' => $carrierId]);
 }
@@ -63,8 +75,8 @@ if ($driverId === 0) {
 
 $payload = [
     'company_id' => $companyId,
-    'load_number' => trim((string)($input['load_number'] ?? '')),
-    'carrier_name' => trim((string)($input['carrier_name'] ?? '')),
+    'load_number' => $loadNumber,
+    'carrier_name' => $carrierName,
     'driver_name' => trim((string)($input['driver_name'] ?? '')),
     'driver_phone' => $driverPhone,
     'driver_email' => trim((string)($input['driver_email'] ?? '')),

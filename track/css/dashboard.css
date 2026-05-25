@@ -45,3 +45,17 @@ body { margin: 0; background: var(--deep-bg); color: #ddffdd; font-family: syste
 .popup-action { font-size: 11px; padding: 4px; background: #223322; border: 1px solid #375237; color: #dce6dc; border-radius: 6px; }
 .popup-feedback { min-height: 14px; font-size: 11px; color: #ffb74d; margin-top: 6px; }
 .legend { position: absolute; bottom: 20px; left: 20px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 14px; padding: 14px 18px; font-size: 0.85rem; z-index: 10000; }
+.hidden { display: none !important; }
+.add-load-btn { background: #16a34a; border-color: #22c55e; color: #fff; }
+.manual-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 11000; display: flex; align-items: center; justify-content: center; }
+.manual-modal-card { width: min(700px, 94vw); background: #102010; border: 1px solid #2f4a2f; border-radius: 12px; padding: 14px; }
+.manual-modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.manual-close-btn { font-size: 20px; background: transparent; border: none; color: #ddd; }
+.manual-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.manual-tab { opacity: 0.8; }
+.manual-tab.active { opacity: 1; border-color: #8BC34A; }
+.manual-panel label { display: block; font-size: 12px; margin-bottom: 8px; }
+.manual-panel input, .manual-panel select { width: 100%; background: #1a2a1a; color: #fff; border: 1px solid #395339; border-radius: 6px; padding: 8px; margin-top: 4px; }
+.manual-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.manual-error { color: #fca5a5; min-height: 18px; margin-top: 6px; }
+.stop-row { border: 1px solid #2f4a2f; border-radius: 8px; padding: 8px; margin-bottom: 8px; }

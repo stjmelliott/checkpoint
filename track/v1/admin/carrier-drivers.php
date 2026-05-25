@@ -1,15 +1,20 @@
 <?php
-// /v1/admin/carrier-drivers.php
 require_once '../../config/bootstrap.php';
-if (!isset($_SESSION['company_id'])) { http_response_code(401); exit; }
+header('Content-Type: application/json');
 
-$carrier_id = (int)($_GET['carrier_id'] ?? 0);
-if ($carrier_id <= 0) exit(json_encode([]));
+if (!isset($_SESSION['company_id']) || (($_SESSION['role'] ?? '') !== 'admin')) {
+    http_response_code(401);
+    echo json_encode(['error' => 'Unauthorized']);
+    exit;
+}
 
-$stmt = $pdo->prepare("SELECT id, driver_name, driver_phone, driver_email 
-    FROM track_carrier_drivers 
-    WHERE carrier_id = ? AND company_id = ? AND is_active = 1 
-    ORDER BY driver_name");
-$stmt->execute([$carrier_id, $_SESSION['company_id']]);
+$companyId = (int)$_SESSION['company_id'];
+$carrierId = (int)($_GET['carrier_id'] ?? 0);
+if ($carrierId <= 0) {
+    echo json_encode([]);
+    exit;
+}
+
+$stmt = $pdo->prepare("SELECT id, driver_name, driver_phone, driver_email FROM track_carrier_drivers WHERE carrier_id = ? AND company_id = ? AND is_active = 1 ORDER BY driver_name");
+$stmt->execute([$carrierId, $companyId]);
 echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
-?>

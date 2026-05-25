@@ -30,6 +30,7 @@ if (!isset($checkpointHeaderCurrent)) {
                 </a>
             <?php endforeach; ?>
         </nav>
+        <button class="btn btn-outline-warning btn-sm mx-2" id="gitPullBridgeBtn"><span class="glyphicon glyphicon-refresh"></span> Sync Git Live</button>
     </div>
 </header>
 
@@ -124,3 +125,21 @@ if (!isset($checkpointHeaderCurrent)) {
     .logo-check, .logo-point { font-size: 24px; }
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var btn=document.getElementById('gitPullBridgeBtn');
+  if(!btn) return;
+  btn.addEventListener('click', async function(){
+    if(!window.confirm('Sync live code from Git now?')) return;
+    try{
+      const res=await fetch('/v1/admin/git-pull-bridge.php');
+      const data=await res.json();
+      alert((data.output||'No output') + '\n\nSuccess: ' + (!!data.success));
+      window.location.reload(true);
+    }catch(e){
+      alert('Sync failed: '+e.message);
+    }
+  });
+});
+</script>

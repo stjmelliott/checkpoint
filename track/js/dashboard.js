@@ -126,6 +126,30 @@ function selectLoad(load) {
     }
 }
 
+function getHeading(from, to) {
+    const dy = to[0] - from[0];
+    const dx = to[1] - from[1];
+    return (Math.atan2(dy, dx) * 180 / Math.PI) + 90;
+}
+
+function createTrailArrowIcon(heading) {
+    return L.divIcon({
+        className: 'trail-arrow-wrap',
+        html: `<div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid #39ff14;transform: rotate(${heading}deg);filter: drop-shadow(0 0 4px rgba(57,255,20,0.9));"></div>`,
+        iconSize: [12, 12],
+        iconAnchor: [6, 6]
+    });
+}
+
+function createTruckIcon(heading) {
+    return L.divIcon({
+        className: 'trail-truck-wrap',
+        html: `<div style="font-size:18px;line-height:1;transform: rotate(${heading}deg);filter: drop-shadow(0 0 5px rgba(57,255,20,0.9));">🚚</div>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+    });
+}
+
 async function postLoadAction(url, loadNumber) {
     const response = await fetch(url, {
         method: 'POST',
@@ -187,6 +211,17 @@ async function showTrail(loadNumber) {
     const trailGroup = L.featureGroup();
     const latlngs = data.pings.map(p => [parseFloat(p.lat), parseFloat(p.lng)]);
     trailGroup.addLayer(L.polyline(latlngs, { color: '#22c55e', weight: 3, dashArray: '8, 5' }));
+    for (let i = 0; i < latlngs.length - 1; i++) {
+        const start = latlngs[i];
+        const end = latlngs[i + 1];
+        const mid = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
+        trailGroup.addLayer(L.marker(mid, { icon: createTrailArrowIcon(getHeading(start, end)) }));
+    }
+    if (latlngs.length > 0) {
+        const last = latlngs[latlngs.length - 1];
+        const prev = latlngs.length > 1 ? latlngs[latlngs.length - 2] : [last[0], last[1] + 0.0001];
+        trailGroup.addLayer(L.marker(last, { icon: createTruckIcon(getHeading(prev, last)) }));
+    }
     trailGroup.addTo(map);
     currentTrailLayer = trailGroup;
     map.fitBounds(trailGroup.getBounds(), { padding: [40, 40] });

@@ -20,7 +20,7 @@ try {
     if ($loadNumber !== '') {
         $trail = $pdo->prepare("SELECT lat, lng, milestone_type, stop_sequence, timestamp FROM track_location_pings WHERE company_id = ? AND load_number = ? ORDER BY timestamp ASC");
         $trail->execute([$company_id, $loadNumber]);
-        echo json_encode(['success' => true, 'pings' => $trail->fetchAll(PDO::FETCH_ASSOC)]);
+        echo json_encode($trail->fetchAll(PDO::FETCH_ASSOC));
         exit;
     }
     $where = "s.company_id = ?";
@@ -37,6 +37,7 @@ try {
             s.carrier_name,
             s.driver_name,
             s.status AS checkin_status,
+            s.driver_phone AS phone,
             latest_ping.lat AS latest_lat,
             latest_ping.lng AS latest_lng,
             latest_ping.milestone_type AS latest_milestone,
@@ -68,10 +69,7 @@ try {
     $stmt->execute(array_merge([$company_id, $company_id], $params));
     $loads = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode([
-        'success' => true,
-        'loads' => $loads,
-    ]);
+    echo json_encode($loads);
 
 } catch (Exception $e) {
     http_response_code(500);

@@ -16,8 +16,8 @@ if (mb_strlen($q) < 2) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT credential_value FROM app_credentials WHERE credential_key='fmcsa_api_key' LIMIT 1");
-$stmt->execute();
+$stmt = $pdo->prepare("SELECT credential_value FROM app_credentials WHERE company_id = ? AND credential_key='fmcsa_api_key' LIMIT 1");
+$stmt->execute([(int)$_SESSION['company_id']]);
 $key = trim((string)$stmt->fetchColumn());
 if ($key === '') {
     echo json_encode(['error' => 'FMCSA key not configured']);

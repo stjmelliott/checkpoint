@@ -75,14 +75,24 @@ require_once __DIR__ . '/includes/header.php';
         <form id="manual-load-form">
             <div class="manual-panel" data-panel="1">
                 <input type="hidden" name="carrier_id" id="carrier_id" value="0">
-                <label>Carrier Name <input type="text" name="carrier_name" id="carrier_name" required></label>
+                <label>Carrier Name <input type="text" name="carrier_name" id="carrier_name" required autocomplete="off"></label>
+                <div id="carrier-results" class="carrier-results"></div>
+                <div class="manual-inline-actions">
+                    <button type="button" id="fmcsa-btn">Search FMCSA Registry</button>
+                    <button type="button" id="manualCarrierEntry">Use Manual Carrier Entry</button>
+                </div>
                 <label>DOT Number <input type="text" name="dot_number" id="dot_number"></label>
             </div>
             <div class="manual-panel hidden" data-panel="2">
                 <input type="hidden" name="driver_id" id="driver_id" value="0">
-                <label>Driver Name <input type="text" name="driver_name" id="driver_name" required></label>
-                <label>Driver Phone (E.164) <input type="text" name="driver_phone" id="driver_phone" placeholder="+15551234567" required></label>
-                <label>Driver Email <input type="email" name="driver_email" id="driver_email"></label>
+                <label>Active Driver Profile
+                    <select id="driver_select"><option value="0">+ New Driver</option></select>
+                </label>
+                <div id="new-driver-form" class="new-driver-form">
+                    <label>Driver Name <input type="text" name="driver_name" id="driver_name"></label>
+                    <label>Driver Phone (E.164) <input type="text" name="driver_phone" id="driver_phone" placeholder="+15551234567" required></label>
+                    <label>Driver Email <input type="email" name="driver_email" id="driver_email"></label>
+                </div>
             </div>
             <div class="manual-panel hidden" data-panel="3">
                 <label>Load Number <input type="text" name="load_number" id="load_number" required></label>

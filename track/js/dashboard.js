@@ -1,6 +1,17 @@
 // existing map logic retained plus manual wizard system
 let map;let markers={};let currentTrailLayer=null;let activeFilter='active';let dashboardLoads=[];const locallyTransitioned=new Map();
 let manualPanel=1;const wizardState={carrier_id:0,driver_id:0,stops:[]};
+function resetManualLoadForm(){
+const form=document.getElementById('manual-load-form');if(!form)return;
+form.reset();
+wizardState.carrier_id=0;wizardState.driver_id=0;wizardState.stops=[];
+['carrier_id','driver_id','selected_carrier_id','selected_driver_id'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='0';});
+['carrier_name','dot_number','driver_name','driver_phone','driver_email','load_number'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+const stopsWrap=document.getElementById('stops-wrap');if(stopsWrap){stopsWrap.innerHTML='';addStopRow({milestone:'pickup'});addStopRow({milestone:'delivery'});} 
+const results=document.getElementById('carrier-results');if(results)results.innerHTML='';
+const sel=document.getElementById('driver_select');if(sel){sel.value='0';['driver_name','driver_phone','driver_email'].forEach(id=>{const lbl=document.getElementById(id)?.closest('label');if(lbl)lbl.style.display='block';});}
+err('');showPanel(1);
+}
 function initMap(){map=L.map('map').setView([43,-93.5],7);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);} 
 const escapeHtml=v=>String(v??'').replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));
 function getEffectiveStatus(l){return locallyTransitioned.get(l.load_number)||l.checkin_status||'active';}
@@ -24,7 +35,9 @@ const addBtn=document.getElementById('ADD_LOAD_BTN');if(addBtn){addBtn.onclick=(
 
 const p1=document.querySelector(".manual-panel[data-panel='1']");if(!document.getElementById('carrier-results')){const d=document.createElement('div');d.id='carrier-results';p1.appendChild(d);const b=document.createElement('button');b.type='button';b.id='fmcsa-btn';b.textContent='Search FMCSA';p1.appendChild(b);b.onclick=searchFmcsa;}
 const p2=document.querySelector(".manual-panel[data-panel='2']");if(!document.getElementById('driver_select')){const sel=document.createElement('select');sel.id='driver_select';sel.innerHTML='<option value="0">+ New Driver</option>';p2.prepend(sel);sel.onchange=()=>{const isNew=sel.value==='0';document.getElementById('driver_id').value=sel.value;['driver_name','driver_phone','driver_email'].forEach(id=>document.getElementById(id).closest('label').style.display=isNew?'block':'none');if(!isNew){const op=sel.selectedOptions[0];document.getElementById('driver_name').value=op.dataset.name||'';document.getElementById('driver_phone').value=op.dataset.phone||'';document.getElementById('driver_email').value=op.dataset.email||'';}};}
+const actions=document.querySelector('#manual-load-form .manual-actions');if(actions&&!document.getElementById('manual-clear-btn')){const clearBtn=document.createElement('button');clearBtn.type='button';clearBtn.id='manual-clear-btn';clearBtn.className='btn-clear-form';clearBtn.textContent='Clear Form';actions.prepend(clearBtn);clearBtn.addEventListener('click',resetManualLoadForm);} 
 showPanel(1);document.getElementById('manual-next-btn').onclick=()=>{if(!panelValid(manualPanel)){if(!document.getElementById('manual-error').textContent)err('Please complete required fields before continuing.');return;}err('');if(manualPanel===1)loadDrivers();showPanel(Math.min(3,manualPanel+1));};document.getElementById('manual-back-btn').onclick=()=>showPanel(Math.max(1,manualPanel-1));document.getElementById('manual-close-btn').onclick=()=>modal.classList.add('hidden');document.getElementById('add-stop-btn').onclick=()=>addStopRow();
 if(document.querySelectorAll('.stop-row').length===0){addStopRow({milestone:'pickup'});addStopRow({milestone:'delivery'});} 
- document.getElementById('manual-load-form').addEventListener('submit',async e=>{e.preventDefault();if(!panelValid(3))return;const fd=new FormData(e.currentTarget);const res=await fetch('v1/admin/create-load.php',{method:'POST',body:fd});const data=await res.json().catch(()=>({}));if(!res.ok||data.success===false){err(data.message||'Failed to create load');return;}modal.classList.add('hidden');e.currentTarget.reset();document.getElementById('stops-wrap').innerHTML='';addStopRow({milestone:'pickup'});addStopRow({milestone:'delivery'});showPanel(1);loadDashboardData();});
+ modal.addEventListener('hidden.bs.modal',resetManualLoadForm);
+ document.getElementById('manual-load-form').addEventListener('submit',async e=>{e.preventDefault();if(!panelValid(3))return;const fd=new FormData(e.currentTarget);const res=await fetch('v1/admin/create-load.php',{method:'POST',body:fd});const data=await res.json().catch(()=>({}));if(!res.ok||data.success===false){err(data.message||'Failed to create load');return;}modal.classList.add('hidden');resetManualLoadForm();loadDashboardData();});
 });

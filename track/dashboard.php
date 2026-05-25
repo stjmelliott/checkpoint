@@ -41,7 +41,7 @@ require_once __DIR__ . '/includes/header.php';
         <h3 style="margin:0; color:#22c55e;">Loads</h3>
         <div style="display:flex; gap:8px;">
             <?php if (in_array($load_entry_mode, ['manual', 'both'], true)): ?>
-            <button id="ADD_LOAD_BTN" class="add-load-btn">+ Add Load</button>
+            <button class="btn btn-success btn-sm" id="ADD_LOAD_BTN" data-bs-toggle="modal" data-bs-target="#addLoadModal"><span class="glyphicon glyphicon-plus"></span> Add Load</button>
             <?php endif; ?>
             <a href="help-dashboard-logic.php" target="_blank">
                 <button style="background:#334155; padding:8px 16px;">Help</button>
@@ -61,7 +61,7 @@ require_once __DIR__ . '/includes/header.php';
     <button onclick="clearTrail()" style="margin-top:15px; width:100%;">Clear Trail</button>
 </div>
 
-<div id="add-load-modal" class="manual-modal hidden" aria-hidden="true">
+<div id="addLoadModal" class="manual-modal hidden" aria-hidden="true">
     <div class="manual-modal-card">
         <div class="manual-modal-head">
             <h4>Add Load</h4>

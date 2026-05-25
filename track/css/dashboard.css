@@ -202,3 +202,19 @@ body { margin: 0; background: var(--deep-bg); color: #ddffdd; font-family: syste
 .manual-panel input:focus,.manual-panel select:focus,.stop-row input:focus,.stop-row select:focus,.console-hub-settings input:focus,.console-hub-settings select:focus{
   box-shadow: 0 0 0 2px rgba(0,255,204,.45),0 0 18px rgba(0,255,204,.35);
 }
+
+#addLoadModal .modal-content,
+#settingsHubModal .modal-content {
+  background: rgba(16, 22, 32, 0.95);
+  border: 1px solid #00ffcc;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+#addLoadModal .form-control:focus,
+#addLoadModal .form-select:focus,
+#addLoadModal .stop-row input:focus,
+#addLoadModal .stop-row select:focus,
+#settingsHubModal .form-control:focus {
+  box-shadow: 0 0 0 2px rgba(0, 255, 204, 0.4), 0 0 16px rgba(0, 255, 204, 0.35);
+  border-color: #00ffcc;
+}

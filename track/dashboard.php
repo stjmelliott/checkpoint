@@ -90,7 +90,7 @@ require_once __DIR__ . '/includes/header.php';
                 </label>
                 <div id="new-driver-form" class="new-driver-form">
                     <label>Driver Name <input type="text" name="driver_name" id="driver_name"></label>
-                    <label>Driver Phone (E.164) <input type="text" name="driver_phone" id="driver_phone" placeholder="+15551234567" required></label>
+                    <label>Driver Phone <input type="text" name="driver_phone" id="driver_phone" placeholder="6124446655" required></label>
                     <label>Driver Email <input type="email" name="driver_email" id="driver_email"></label>
                 </div>
             </div>
@@ -101,6 +101,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <div class="manual-error" id="manual-error"></div>
             <div class="manual-actions">
+                <button type="button" id="manual-clear-btn" class="btn-clear-form">Clear Form / Start Over</button>
                 <button type="button" id="manual-back-btn">Back</button>
                 <button type="button" id="manual-next-btn">Next</button>
                 <button type="submit" id="manual-submit-btn" class="hidden">Create Load</button>

@@ -109,7 +109,6 @@ require_once __DIR__ . '/includes/header.php';
         </form>
     </div>
 </div>
-</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/dashboard.js?v=20260525a"></script>

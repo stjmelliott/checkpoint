@@ -1,4 +1,17 @@
 <?php require_once '../config/bootstrap.php'; ?>
+<?php
+$load_entry_mode = 'webhook';
+try {
+    $stmt = $pdo->prepare("SELECT credential_value FROM app_credentials WHERE service_name = 'checkpoint' AND credential_key = 'load_entry_mode' LIMIT 1");
+    $stmt->execute();
+    $mode = strtolower((string)$stmt->fetchColumn());
+    if (in_array($mode, ['webhook', 'manual', 'both'], true)) {
+        $load_entry_mode = $mode;
+    }
+} catch (Throwable $e) {
+    Logger::write('error.log', 'WARN', 'Failed to resolve load_entry_mode', ['msg' => $e->getMessage()]);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,9 +39,14 @@ require_once __DIR__ . '/includes/header.php';
 <div class="sidebar">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h3 style="margin:0; color:#22c55e;">Loads</h3>
-        <a href="help-dashboard-logic.php" target="_blank">
-            <button style="background:#334155; padding:8px 16px;">Help</button>
-        </a>
+        <div style="display:flex; gap:8px;">
+            <?php if (in_array($load_entry_mode, ['manual', 'both'], true)): ?>
+            <button id="ADD_LOAD_BTN" class="add-load-btn">+ Add Load</button>
+            <?php endif; ?>
+            <a href="help-dashboard-logic.php" target="_blank">
+                <button style="background:#334155; padding:8px 16px;">Help</button>
+            </a>
+        </div>
     </div>
 
     <!-- Status Tabs -->
@@ -41,6 +59,44 @@ require_once __DIR__ . '/includes/header.php';
 
     <div id="load-list"></div>
     <button onclick="clearTrail()" style="margin-top:15px; width:100%;">Clear Trail</button>
+</div>
+
+<div id="add-load-modal" class="manual-modal hidden" aria-hidden="true">
+    <div class="manual-modal-card">
+        <div class="manual-modal-head">
+            <h4>Add Load</h4>
+            <button id="manual-close-btn" class="manual-close-btn">×</button>
+        </div>
+        <div class="manual-tabs">
+            <button class="manual-tab active" data-panel="1">1. Carrier</button>
+            <button class="manual-tab" data-panel="2">2. Driver</button>
+            <button class="manual-tab" data-panel="3">3. Load</button>
+        </div>
+        <form id="manual-load-form">
+            <div class="manual-panel" data-panel="1">
+                <input type="hidden" name="carrier_id" id="carrier_id" value="0">
+                <label>Carrier Name <input type="text" name="carrier_name" id="carrier_name" required></label>
+                <label>DOT Number <input type="text" name="dot_number" id="dot_number"></label>
+            </div>
+            <div class="manual-panel hidden" data-panel="2">
+                <input type="hidden" name="driver_id" id="driver_id" value="0">
+                <label>Driver Name <input type="text" name="driver_name" id="driver_name" required></label>
+                <label>Driver Phone (E.164) <input type="text" name="driver_phone" id="driver_phone" placeholder="+15551234567" required></label>
+                <label>Driver Email <input type="email" name="driver_email" id="driver_email"></label>
+            </div>
+            <div class="manual-panel hidden" data-panel="3">
+                <label>Load Number <input type="text" name="load_number" id="load_number" required></label>
+                <div id="stops-wrap"></div>
+                <button type="button" id="add-stop-btn">+ Add Stop</button>
+            </div>
+            <div class="manual-error" id="manual-error"></div>
+            <div class="manual-actions">
+                <button type="button" id="manual-back-btn">Back</button>
+                <button type="button" id="manual-next-btn">Next</button>
+                <button type="submit" id="manual-submit-btn" class="hidden">Create Load</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

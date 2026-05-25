@@ -4,6 +4,7 @@ let currentTrailLayer = null;
 let activeFilter = 'active';
 let dashboardLoads = [];
 const locallyTransitioned = new Map();
+let manualPanel = 1;
 
 function initMap() {
     map = L.map('map').setView([43.0, -93.5], 7);
@@ -241,8 +242,81 @@ function filterByStatus(status, button) {
     renderDashboard();
 }
 
+function addStopRow() {
+    const wrap = document.getElementById('stops-wrap');
+    const idx = wrap.children.length;
+    const row = document.createElement('div');
+    row.className = 'stop-row';
+    row.innerHTML = `<label>Milestone
+        <select name="stop[${idx}][milestone]"><option value="pickup">pickup</option><option value="transit">transit</option><option value="delivery">delivery</option></select>
+        </label>
+        <label>City <input type="text" name="stop[${idx}][city]" required></label>
+        <label>State <input type="text" name="stop[${idx}][state]" required></label>`;
+    wrap.appendChild(row);
+}
+
+function showManualPanel(panel) {
+    manualPanel = panel;
+    document.querySelectorAll('.manual-panel').forEach(el => el.classList.toggle('hidden', Number(el.dataset.panel) !== panel));
+    document.querySelectorAll('.manual-tab').forEach(el => el.classList.toggle('active', Number(el.dataset.panel) === panel));
+    document.getElementById('manual-back-btn').classList.toggle('hidden', panel === 1);
+    document.getElementById('manual-next-btn').classList.toggle('hidden', panel === 3);
+    document.getElementById('manual-submit-btn').classList.toggle('hidden', panel !== 3);
+}
+
+function validatePanel(panel) {
+    if (panel === 1) return Boolean(document.getElementById('carrier_name').value.trim());
+    if (panel === 2) return /^\+[1-9]\d{1,14}$/.test(document.getElementById('driver_phone').value.trim()) && Boolean(document.getElementById('driver_name').value.trim());
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initMap();
     loadDashboardData();
     setInterval(loadDashboardData, 8000);
+
+    const addBtn = document.getElementById('ADD_LOAD_BTN');
+    const modal = document.getElementById('add-load-modal');
+    if (!addBtn || !modal) return;
+    addBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+    document.getElementById('manual-close-btn').addEventListener('click', () => modal.classList.add('hidden'));
+    document.getElementById('manual-next-btn').addEventListener('click', () => {
+        if (!validatePanel(manualPanel)) {
+            document.getElementById('manual-error').textContent = 'Please complete required fields before continuing.';
+            return;
+        }
+        document.getElementById('manual-error').textContent = '';
+        showManualPanel(Math.min(3, manualPanel + 1));
+    });
+    document.getElementById('manual-back-btn').addEventListener('click', () => showManualPanel(Math.max(1, manualPanel - 1)));
+    document.getElementById('add-stop-btn').addEventListener('click', addStopRow);
+    addStopRow();
+    addStopRow();
+    document.getElementById('manual-load-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const fd = new FormData(form);
+        const milestones = fd.getAll ? Array.from(form.querySelectorAll('select[name*="[milestone]"]')).map(el => el.value) : [];
+        if (milestones.filter(v => v === 'delivery').length !== 1) {
+            document.getElementById('manual-error').textContent = 'Exactly one delivery stop is required.';
+            return;
+        }
+        if (form.querySelectorAll('.stop-row').length < 2) {
+            document.getElementById('manual-error').textContent = 'At least 2 stops are required.';
+            return;
+        }
+        const res = await fetch('/v1/admin/create-load.php', { method: 'POST', body: fd });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) {
+            document.getElementById('manual-error').textContent = data.message || 'Failed to create load.';
+            return;
+        }
+        modal.classList.add('hidden');
+        form.reset();
+        document.getElementById('stops-wrap').innerHTML = '';
+        addStopRow(); addStopRow();
+        showManualPanel(1);
+        loadDashboardData();
+    });
+    showManualPanel(1);
 });

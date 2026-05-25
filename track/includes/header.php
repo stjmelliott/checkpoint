@@ -46,9 +46,29 @@ if (!isset($checkpointHeaderCurrent)) {
     position: sticky;
     top: 0;
     z-index: 999;
+    overflow: hidden;
     background: linear-gradient(120deg, var(--cp-bg-main), var(--cp-bg-sub));
     border-bottom: 1px solid rgba(34, 197, 94, 0.5);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 -1px 0 rgba(34, 197, 94, 0.2);
+}
+
+
+.checkpoint-header-shell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 35%, rgba(92, 255, 148, 0.38) 50%, transparent 65%);
+    transform: translateX(-130%);
+    animation: checkpointSweep 3.2s ease-in-out infinite;
+}
+
+@keyframes checkpointSweep {
+    0% { transform: translateX(-130%); opacity: 0; }
+    18% { opacity: 0.9; }
+    50% { transform: translateX(0%); opacity: 0.8; }
+    82% { opacity: 0.5; }
+    100% { transform: translateX(130%); opacity: 0; }
 }
 
 .checkpoint-header-inner {

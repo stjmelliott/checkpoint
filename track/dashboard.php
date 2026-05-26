@@ -14,7 +14,18 @@ $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';
     <link rel="stylesheet" href="css/dashboard.css?v=20260522c">
 </head>
 <body>
-<?php $checkpointHeaderCurrent = 'Live Map'; require_once __DIR__ . '/includes/header.php'; ?>
+<?php
+$checkpointHeaderCurrent = 'Live Map';
+ob_start();
+require __DIR__ . '/includes/header.php';
+$headerMarkup = ob_get_clean();
+$settingsHubModalMarkup = '';
+if (preg_match('/<div class="modal fade" id="settingsHubModal"[\s\S]*?<\/div>\s*<style>/i', $headerMarkup, $modalMatch)) {
+    $settingsHubModalMarkup = preg_replace('/<style>[\s\S]*$/i', '', $modalMatch[0]);
+    $headerMarkup = str_replace($modalMatch[0], '<style>', $headerMarkup);
+}
+echo $headerMarkup;
+?>
 <div id="map"></div>
 <div class="legend"><strong style="color:#22c55e; display:block; margin-bottom:8px;">Legend</strong><div>🚚 Pickup &nbsp;&nbsp; ➡️ In Transit &nbsp;&nbsp; 📍 Delivery</div></div>
 <div class="sidebar">
@@ -52,6 +63,9 @@ $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';
     </div>
   </div>
 </div>
+<?php if ($settingsHubModalMarkup !== ''): ?>
+<?= $settingsHubModalMarkup ?>
+<?php endif; ?>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/dashboard.js?v=20260525a"></script>

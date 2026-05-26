@@ -10,6 +10,7 @@ $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';
     <meta charset="UTF-8">
     <title>Exspeedite CheckPoint • Live Map</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="css/dashboard.css?v=<?php echo time(); ?>">
 </head>

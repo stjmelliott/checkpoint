@@ -36,7 +36,7 @@ $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';
 
 <div class="modal fade" id="addLoadModal" tabindex="-1" aria-labelledby="addLoadModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
+    <div class="modal-content manual-modal-card">
       <div class="modal-header manual-modal-head">
         <h5 class="modal-title" id="addLoadModalLabel">Manual Load Wizard</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>

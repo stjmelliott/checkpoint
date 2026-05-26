@@ -58,8 +58,7 @@ function addStopRow(stop = {}) {
     <button type="button" class="btn btn-sm btn-outline-danger remove-stop col-12 mt-1">Remove Stop</button>`;
   const wrap = document.getElementById('stops-wrap');
   if (wrap) wrap.appendChild(r);
-  const removeBtn = r.querySelector('.remove-stop');
-  if (removeBtn) removeBtn.addEventListener('click', () => r.remove());
+  r.querySelector('.remove-stop').addEventListener('click', () => r.remove());
 }
 function showPanel(n){manualPanel=n;document.querySelectorAll('.manual-panel').forEach(el=>el.classList.toggle('hidden',+el.dataset.panel!==n));document.querySelectorAll('.manual-tab').forEach(el=>el.classList.toggle('active',+el.dataset.panel===n));document.getElementById('manual-back-btn').classList.toggle('hidden',n===1);document.getElementById('manual-next-btn').classList.toggle('hidden',n===3);document.getElementById('manual-submit-btn').classList.toggle('hidden',n!==3);} 
 function panelValid(p){if(p===1)return !!document.getElementById('carrier_name').value.trim();if(p===2)return normalizePhone(document.getElementById('driver_phone').value).length===10;if(p===3)return !!document.getElementById('load_number').value.trim();return true;}
@@ -69,12 +68,9 @@ function resetManualLoadForm() {
   const stopsWrap = document.getElementById('stops-wrap');
   if (stopsWrap) stopsWrap.innerHTML = '';
   addStopRow();
-  const carrierId = document.getElementById('carrier_id');
-  if (carrierId) carrierId.value = '0';
-  const driverId = document.getElementById('driver_id');
-  if (driverId) driverId.value = '0';
-  const carrierResults = document.getElementById('carrier-results');
-  if (carrierResults) carrierResults.innerHTML = '';
+  const carrierId = document.getElementById('carrier_id'); if (carrierId) carrierId.value = '0';
+  const driverId = document.getElementById('driver_id'); if (driverId) driverId.value = '0';
+  const carrierResults = document.getElementById('carrier-results'); if (carrierResults) carrierResults.innerHTML = '';
   err('');
 }
 
@@ -95,44 +91,31 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   setInterval(() => loadDashboardData(activeStatus), 15000);
 
+
   const modal = document.getElementById('addLoadModal');
   if (!modal) return;
-
-  const fmcsaBtn = document.getElementById('fmcsa-btn');
-  if (fmcsaBtn) fmcsaBtn.onclick = searchFmcsa;
-
-  const addStopBtn = document.getElementById('add-stop-btn');
-  if (addStopBtn) addStopBtn.onclick = () => addStopRow();
-
+  document.getElementById('fmcsa-btn').onclick = searchFmcsa;
+  document.getElementById('add-stop-btn').onclick = () => addStopRow();
   const clearBtn = document.getElementById('modalClearFormBtn');
   if (clearBtn) clearBtn.addEventListener('click', resetManualLoadForm);
-
   modal.addEventListener('hidden.bs.modal', resetManualLoadForm);
-
-  const form = document.getElementById('manual-load-form');
-  if (!form) return;
-
-  form.addEventListener('submit', async e => {
+  document.getElementById('manual-load-form').addEventListener('submit', async e => {
     e.preventDefault();
     const driverPhone = document.getElementById('driver_phone');
     if (driverPhone) driverPhone.value = normalizePhone(driverPhone.value || '');
-
     document.querySelectorAll('.stop-row').forEach(row => {
       const city = row.querySelector("input[name*='[city]']");
       const state = row.querySelector("input[name*='[state]']");
       if (city && !city.value.trim()) city.value = 'Unknown City';
       if (state && !state.value.trim()) state.value = 'US';
     });
-
     const fd = new FormData(e.currentTarget);
-    const res = await fetch('/track/v1/admin/create-load.php', { method: 'POST', body: fd });
+    const res = await fetch('/track/v1/admin/create-load.php', {method:'POST', body: fd});
     const data = await res.json().catch(() => ({}));
-
     if (!res.ok || data.success === false) {
       err(data.message || 'Failed to create load');
       return;
     }
-
     bootstrap.Modal.getOrCreateInstance(modal).hide();
     resetManualLoadForm();
     loadDashboardData(activeStatus);

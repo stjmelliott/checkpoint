@@ -53,7 +53,7 @@ function addStopRow(stop = {}) {
     <div class="col-6"><label class="form-label">City</label><input type="text" name="stop[${i}][city]" class="form-control" value="${stop.city||'Chicago'}"></div>
     <div class="col-3"><label class="form-label">State</label><input type="text" name="stop[${i}][state]" class="form-control" value="${stop.state||'IL'}"></div>
     <div class="col-3"><label class="form-label">ZIP</label><input type="text" name="stop[${i}][zip]" class="form-control" value="${stop.zip||'60601'}"></div>
-    <div class="col-6"><label class="form-label">Milestone</label><select name="stop[${i}][milestone]" class="form-select"><option value="pickup" selected>Pickup</option><option value="transit">In Transit</option><option value="delivery">Delivery</option></select></div>
+    <div class="col-6"><label class="form-label">Milestone</label><select name="stop[${i}][milestone]" class="form-select"><option value="pickup" ${stop.milestone==='pickup' ? 'selected' : ''}>Pickup</option><option value="transit" ${stop.milestone==='transit' ? 'selected' : ''}>In Transit</option><option value="delivery" ${stop.milestone==='delivery' ? 'selected' : ''}>Delivery</option></select></div>
     <div class="col-6"><label class="form-label">Scheduled</label><input type="datetime-local" name="stop[${i}][scheduled_at]" class="form-control" value="${stop.scheduled_at||''}"></div>
     <button type="button" class="btn btn-sm btn-outline-danger remove-stop col-12 mt-1">Remove Stop</button>`;
   const wrap = document.getElementById('stops-wrap');
@@ -97,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!modal) return;
   document.getElementById('fmcsa-btn').onclick = searchFmcsa;
   document.getElementById('add-stop-btn').onclick = () => addStopRow();
+  resetManualLoadForm();
   const clearBtn = document.getElementById('modalClearFormBtn');
   if (clearBtn) clearBtn.addEventListener('click', resetManualLoadForm);
   modal.addEventListener('hidden.bs.modal', resetManualLoadForm);

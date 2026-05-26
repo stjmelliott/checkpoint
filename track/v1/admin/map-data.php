@@ -8,7 +8,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 if (!isset($_SESSION['company_id']) || (int)$_SESSION['company_id'] <= 0) {
     http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized Data Stream Access']);
     exit;
 }
 $company_id = (int)$_SESSION['company_id'];
@@ -23,6 +23,7 @@ try {
         echo json_encode($trail->fetchAll(PDO::FETCH_ASSOC));
         exit;
     }
+
     $where = "s.company_id = ?";
     $params = [$company_id];
 
@@ -69,7 +70,23 @@ try {
     $stmt->execute(array_merge([$company_id, $company_id], $params));
     $loads = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode($loads);
+    $cleanLoads = array_map(static function (array $row): array {
+        return [
+            'load_number' => (string)($row['load_number'] ?? ''),
+            'carrier_name' => (string)($row['carrier_name'] ?? ''),
+            'driver_name' => (string)($row['driver_name'] ?? ''),
+            'phone' => (string)($row['phone'] ?? ''),
+            'latest_lat' => $row['latest_lat'] !== null ? (float)$row['latest_lat'] : null,
+            'latest_lng' => $row['latest_lng'] !== null ? (float)$row['latest_lng'] : null,
+            'checkin_status' => (string)($row['checkin_status'] ?? 'active'),
+            'latest_milestone' => (string)($row['latest_milestone'] ?? ''),
+            'latest_stop' => $row['latest_stop'] !== null ? (int)$row['latest_stop'] : null,
+            'last_checkin' => $row['last_checkin'],
+            'ping_count' => (int)($row['ping_count'] ?? 0),
+        ];
+    }, $loads);
+
+    echo json_encode($cleanLoads);
 
 } catch (Exception $e) {
     http_response_code(500);

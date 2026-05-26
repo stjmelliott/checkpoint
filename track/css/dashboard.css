@@ -5,6 +5,20 @@
     --glass-border: rgba(57, 255, 20, 0.25);
 }
 
+body { margin: 0; padding: 0; height: 100vh; overflow: hidden; }
+
+#map { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 1; }
+
+.sidebar {
+    position: fixed;
+    top: 82px;
+    right: 20px;
+    width: 380px;
+    height: calc(100vh - 102px);
+    overflow-y: auto;
+    z-index: 10000;
+}
+
 body { margin: 0; background: var(--deep-bg); color: #ddffdd; font-family: system-ui, sans-serif; }
 .header { position: absolute; top: 0; left: 0; right: 0; height: 68px; background: linear-gradient(135deg, #003366 0%, #0055A4 100%); display: flex; align-items: center; justify-content: center; z-index: 10001; border-bottom: 1px solid #8BC34A; }
 .header img { height: 46px; margin-right: 14px; }
@@ -217,4 +231,59 @@ body { margin: 0; background: var(--deep-bg); color: #ddffdd; font-family: syste
 #settingsHubModal .form-control:focus {
   box-shadow: 0 0 0 2px rgba(0, 255, 204, 0.4), 0 0 16px rgba(0, 255, 204, 0.35);
   border-color: #00ffcc;
+}
+
+
+#addLoadModal .modal-content,
+#settingsHubModal .modal-content {
+    background: rgba(16, 22, 32, 0.96) !important;
+    backdrop-filter: blur(15px) !important;
+    border: 1px solid #00ffcc !important;
+    box-shadow: 0 0 30px rgba(0, 255, 204, 0.25) !important;
+    color: #e2e8f0 !important;
+}
+#addLoadModal .form-control,
+#addLoadModal .form-select,
+#settingsHubModal .form-control,
+#settingsHubModal .form-select {
+    background: rgba(255,255,255,0.07) !important;
+    border: 1px solid rgba(0,255,204,0.35) !important;
+    color: #e2e8f0 !important;
+}
+#addLoadModal .form-control:focus,
+#addLoadModal .form-select:focus,
+#settingsHubModal .form-control:focus,
+#settingsHubModal .form-select:focus {
+    border-color: #00ffcc !important;
+    box-shadow: 0 0 0 2px rgba(0,255,204,.35), 0 0 16px rgba(0,255,204,.35) !important;
+}
+.wizard-step-node.active {
+    color: #00ffcc !important;
+    text-shadow: 0 0 10px rgba(0,255,204,.7) !important;
+}
+#addLoadModal .modal-footer #modalClearFormBtn.btn-clear-form {
+    border: 1px solid #ef4444 !important;
+    color: #fecaca !important;
+    background: rgba(127, 29, 29, 0.35) !important;
+}
+#addLoadModal .modal-header,
+#settingsHubModal .modal-header {
+    position: relative;
+    overflow: hidden;
+}
+#addLoadModal .modal-header::after,
+#settingsHubModal .modal-header::after {
+    content: '';
+    position: absolute;
+    top: -35%;
+    left: -42%;
+    width: 24%;
+    height: 170%;
+    transform: skewX(-24deg);
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.78), rgba(255,255,255,0));
+    animation: modalHeaderLightSweep 6s linear infinite;
+}
+@keyframes modalHeaderLightSweep {
+    from { left: -42%; }
+    to { left: 142%; }
 }

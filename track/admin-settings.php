@@ -1,13 +1,11 @@
 <?php
-require_once __DIR__ . '/../config/bootstrap.php';
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
-
-if (!isset($_SESSION['company_id']) || (($_SESSION['role'] ?? '') !== 'admin')) {
+session_start();
+if (!isset($_SESSION['company_id'])) {
     http_response_code(403);
-    exit('Forbidden');
+    echo "Forbidden - please log in first.";
+    exit;
 }
+require_once __DIR__ . '/../config/bootstrap.php';
 
 $companyId = (int)$_SESSION['company_id'];
 $stmt = $pdo->prepare("SELECT credential_value FROM app_credentials WHERE company_id = ? AND service_name = 'checkpoint' AND credential_key = 'fmcsa_api_key' LIMIT 1");

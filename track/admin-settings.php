@@ -42,62 +42,44 @@ $fmcsaApiKey = (string)($stmt->fetchColumn() ?: '');
         <h1>Admin Settings</h1>
         <p class="subtle">Configure system credentials for tenant #<?= htmlspecialchars((string)$companyId) ?>.</p>
         <div class="card">
-  <div class="card-header">
-    <h5><i class="bi bi-key"></i> Edit FMCSA API Credential</h5>
-  </div>
+  <div class="card-header"><h5><i class="bi bi-key"></i> Edit FMCSA API Credential</h5></div>
   <div class="card-body">
-    <form method="post" action="">
-      <input type="hidden" name="id" value="<?php echo $id; ?>">
-
+    <form method="post">
+      <input type="hidden" name="id" value="<?php echo $id ?? ''; ?>">
       <div class="row g-3">
-        <!-- Service Name -->
         <div class="col-12 col-md-6">
           <label class="form-label">Service Name <span class="text-danger">*</span></label>
           <select name="service_name" class="form-select" required>
             <option value="fmcsa" selected>FMCSA (Federal Motor Carrier Safety Administration)</option>
-            <option value="other">Other API (future)</option>
           </select>
-          <div class="form-text">Used internally by the system_credentials table.</div>
         </div>
-
-        <!-- Credential Key -->
         <div class="col-12 col-md-6">
           <label class="form-label">Credential Key <span class="text-danger">*</span></label>
           <input type="text" name="credential_key" class="form-control" value="FMCSA_API_KEY" readonly>
-          <div class="form-text">This is the exact key name stored in the database.</div>
         </div>
-
-        <!-- Credential Value (API Key) -->
         <div class="col-12">
           <label class="form-label">API Key Value <span class="text-danger">*</span></label>
           <div class="input-group">
-            <input type="password" name="credential_value" id="api-key-input" class="form-control" value="<?php echo htmlspecialchars($credential_value ?? ''); ?>" placeholder="Enter your FMCSA API key here" required>
+            <input type="password" name="credential_value" id="api-key-input" class="form-control" value="<?php echo htmlspecialchars($credential_value ?? ''); ?>" required>
             <button class="btn btn-outline-secondary" type="button" onclick="toggleApiKeyVisibility()">👁️</button>
           </div>
-          <div class="form-text">Paste your full FMCSA key (e.g. 3cba3356be06e2e...)</div>
         </div>
-
-        <!-- Comment / Description -->
         <div class="col-12">
           <label class="form-label">Description / Comment</label>
-          <textarea name="comment" class="form-control" rows="2" placeholder="FMCSA API Key - for FMCSA API. Used for carrier/DOT lookup in Add Load."><?php echo htmlspecialchars($comment ?? ''); ?></textarea>
+          <textarea name="comment" class="form-control" rows="2"><?php echo htmlspecialchars($comment ?? ''); ?></textarea>
         </div>
-
-        <!-- Last Updated (read-only) -->
         <div class="col-12">
           <label class="form-label">Last Updated</label>
-          <input type="text" class="form-control" value="<?php echo $updated_at ?? 'Just now'; ?>" readonly>
+          <input type="text" class="form-control" value="<?php echo $updated_at ?? 'Now'; ?>" readonly>
         </div>
       </div>
-
-      <!-- Action buttons -->
       <div class="d-flex gap-2 mt-4">
-        <button type="submit" name="save_credential" class="btn btn-success btn-lg px-5">💾 Save Changes to system_credentials</button>
-        <button type="button" class="btn btn-outline-primary" onclick="testFmcsaConnection()">🔌 Test Connection</button>
+        <button type="submit" name="save_credential" class="btn btn-success btn-lg px-5">💾 Save to system_credentials</button>
         <a href="admin-settings.php" class="btn btn-secondary">Cancel</a>
       </div>
     </form>
   </div>
+</div>
 </div>
     </div>
 </div>
@@ -105,7 +87,7 @@ $fmcsaApiKey = (string)($stmt->fetchColumn() ?: '');
 <script>
 function toggleApiKeyVisibility() {
   const input = document.getElementById('api-key-input');
-  input.type = input.type === 'password' ? 'text' : 'password';
+  if (input) input.type = input.type === 'password' ? 'text' : 'password';
 }
 function testFmcsaConnection() {
   alert('✅ FMCSA connection test coming soon (will call /v1/admin/fmcsa-search.php)');

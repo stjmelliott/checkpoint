@@ -58,8 +58,8 @@ function addStopRow(stop = {}) {
     <button type="button" class="btn btn-sm btn-outline-danger remove-stop col-12 mt-1">Remove Stop</button>`;
   const wrap = document.getElementById('stops-wrap');
   if (wrap) wrap.appendChild(r);
-  // attach remove listener
-  r.querySelector('.remove-stop').addEventListener('click', () => r.remove());
+  const removeBtn = r.querySelector('.remove-stop');
+  if (removeBtn) removeBtn.addEventListener('click', () => r.remove());
 }
 function showPanel(n){manualPanel=n;document.querySelectorAll('.manual-panel').forEach(el=>el.classList.toggle('hidden',+el.dataset.panel!==n));document.querySelectorAll('.manual-tab').forEach(el=>el.classList.toggle('active',+el.dataset.panel===n));document.getElementById('manual-back-btn').classList.toggle('hidden',n===1);document.getElementById('manual-next-btn').classList.toggle('hidden',n===3);document.getElementById('manual-submit-btn').classList.toggle('hidden',n!==3);} 
 function panelValid(p){if(p===1)return !!document.getElementById('carrier_name').value.trim();if(p===2)return normalizePhone(document.getElementById('driver_phone').value).length===10;if(p===3)return !!document.getElementById('load_number').value.trim();return true;}
@@ -68,7 +68,6 @@ function resetManualLoadForm() {
   if (form) form.reset();
   const stopsWrap = document.getElementById('stops-wrap');
   if (stopsWrap) stopsWrap.innerHTML = '';
-  // re-add one empty stop row
   addStopRow();
   const carrierId = document.getElementById('carrier_id');
   if (carrierId) carrierId.value = '0';
@@ -76,13 +75,9 @@ function resetManualLoadForm() {
   if (driverId) driverId.value = '0';
   const carrierResults = document.getElementById('carrier-results');
   if (carrierResults) carrierResults.innerHTML = '';
-  const driverSelect = document.getElementById('driver_select');
-  if (driverSelect) driverSelect.innerHTML = '<option value="0">+ New Driver</option>';
-  const newDriverForm = document.getElementById('new-driver-form');
-  if (newDriverForm) newDriverForm.style.display = 'block';
   err('');
-  showPanel(1);
-} 
+}
+
 async function searchFmcsa(){const q=document.getElementById('carrier_name').value.trim();if(q.length<2){err('Enter at least 2 characters.');return;}const r=await fetch('/track/v1/admin/fmcsa-search.php?q='+encodeURIComponent(q));const data=await r.json();const box=document.getElementById('carrier-results');box.innerHTML='';(data||[]).forEach(item=>{const b=document.createElement('button');b.type='button';b.className='carrier-result';b.textContent=`${item.legal_name} (${item.dot_number})`;b.onclick=()=>{carrier_id.value='0';carrier_name.value=item.legal_name||'';dot_number.value=item.dot_number||'';box.innerHTML='';};box.appendChild(b);});}
 async function loadDrivers(){const carrierId=+document.getElementById('carrier_id').value||0;if(carrierId<=0)return;const r=await fetch('/track/v1/admin/carrier-drivers.php?carrier_id='+carrierId);const data=await r.json();const sel=document.getElementById('driver_select');sel.innerHTML='<option value="0">+ New Driver</option>';(data||[]).forEach(d=>{const op=document.createElement('option');op.value=String(d.id);op.textContent=`${d.driver_name} (${d.driver_phone})`;op.dataset.name=d.driver_name||'';op.dataset.phone=d.driver_phone||'';op.dataset.email=d.driver_email||'';sel.appendChild(op);});}
 document.addEventListener('DOMContentLoaded', () => {
@@ -103,24 +98,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const modal = document.getElementById('addLoadModal');
   if (!modal) return;
 
-  // Initial setup for flat single-screen form
-  document.getElementById('fmcsa-btn').onclick = searchFmcsa;
-  document.getElementById('add-stop-btn').onclick = () => addStopRow();
+  const fmcsaBtn = document.getElementById('fmcsa-btn');
+  if (fmcsaBtn) fmcsaBtn.onclick = searchFmcsa;
 
-  // Clear button
+  const addStopBtn = document.getElementById('add-stop-btn');
+  if (addStopBtn) addStopBtn.onclick = () => addStopRow();
+
   const clearBtn = document.getElementById('modalClearFormBtn');
   if (clearBtn) clearBtn.addEventListener('click', resetManualLoadForm);
 
-  // Modal close cleanup
   modal.addEventListener('hidden.bs.modal', resetManualLoadForm);
 
-  // Form submit
-  document.getElementById('manual-load-form').addEventListener('submit', async e => {
+  const form = document.getElementById('manual-load-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const driverPhone = document.getElementById('driver_phone');
     if (driverPhone) driverPhone.value = normalizePhone(driverPhone.value || '');
 
-    // Ensure stops have city/state defaults
     document.querySelectorAll('.stop-row').forEach(row => {
       const city = row.querySelector("input[name*='[city]']");
       const state = row.querySelector("input[name*='[state]']");

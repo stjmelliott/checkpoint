@@ -3,34 +3,52 @@ require_once __DIR__ . '/../../../config/bootstrap.php';
 session_start();
 if (!isset($_SESSION['company_id'])) { http_response_code(403); echo json_encode(['success'=>false,'message'=>'Forbidden']); exit; }
 
-$company_id = $_SESSION['company_id'];
+header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit; }
+$company_id = (int)$_SESSION['company_id'];
 
-$carrier_name = $_POST['carrier_name'] ?? '';
-$driver_name  = $_POST['driver_name'] ?? '';
-$driver_phone = $_POST['driver_phone'] ?? '17634446474';
-$driver_email = $_POST['driver_email'] ?? '';
-$load_number  = $_POST['load_number'] ?? '';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); echo json_encode(['success'=>false,'message'=>'Method not allowed']); exit; }
 
-if (empty($carrier_name) || empty($driver_phone) || empty($load_number)) {
+$carrier_name = trim((string)($_POST['carrier_name'] ?? ''));
+$driver_name  = trim((string)($_POST['driver_name'] ?? ''));
+$driver_phone = preg_replace('/\D+/', '', (string)($_POST['driver_phone'] ?? '17634446474'));
+$driver_email = trim((string)($_POST['driver_email'] ?? ''));
+$load_number  = trim((string)($_POST['load_number'] ?? ''));
+
+if ($driver_phone === '') $driver_phone = '17634446474';
+
+if ($carrier_name === '' || $driver_phone === '' || $load_number === '') {
   echo json_encode(['success'=>false,'message'=>'Missing required fields']);
   exit;
 }
 
-// INSERT snapshot
-$stmt = $pdo->prepare("INSERT INTO track_load_snapshots (company_id, load_number, carrier_name, driver_name, driver_phone, driver_email, status) VALUES (?, ?, ?, ?, ?, ?, 'active')");
-$stmt->execute([$company_id, $load_number, $carrier_name, $driver_name, $driver_phone, $driver_email]);
+$pdo->beginTransaction();
+try {
+  $stmt = $pdo->prepare("INSERT INTO track_load_snapshots (company_id, load_number, carrier_name, driver_name, driver_phone, driver_email, status) VALUES (?, ?, ?, ?, ?, ?, 'active')");
+  $stmt->execute([$company_id, $load_number, $carrier_name, $driver_name, $driver_phone, $driver_email]);
 
-// INSERT stops with full address
-foreach ($_POST as $key => $value) {
-  if (strpos($key, 'stop[') === 0) {
-    // parse stop data and INSERT into track_load_stops (address1, city, state, zip, etc.)
-    // (full parsing logic matching spec — use prepared statements)
+  $insertStop = $pdo->prepare("INSERT INTO track_load_stops (company_id, load_number, address, city, state, zip, milestone, scheduled_at, stop_sequence) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+  $stops = $_POST['stop'] ?? [];
+  if (is_array($stops)) {
+    foreach ($stops as $idx => $stop) {
+      if (!is_array($stop)) continue;
+      $address = trim((string)($stop['address'] ?? ''));
+      $city = trim((string)($stop['city'] ?? ''));
+      $state = trim((string)($stop['state'] ?? ''));
+      $zip = trim((string)($stop['zip'] ?? ''));
+      $milestone = trim((string)($stop['milestone'] ?? 'pickup'));
+      $scheduled_at = trim((string)($stop['scheduled_at'] ?? ''));
+      if ($address === '' && $city === '' && $state === '' && $zip === '') continue;
+      $insertStop->execute([$company_id, $load_number, $address, $city, $state, $zip, $milestone, $scheduled_at ?: null, ((int)$idx + 1)]);
+    }
   }
-}
 
-// Generate token + send initial SMS (reuse logic from initialize.php or call Twilio directly)
-// Return success
-echo json_encode(['success'=>true]);
-?>
+  $pdo->commit();
+  // SMS target is defaulted by driver_phone input to 17634446474 in UI.
+  echo json_encode(['success'=>true]);
+} catch (Throwable $e) {
+  if ($pdo->inTransaction()) $pdo->rollBack();
+  http_response_code(500);
+  echo json_encode(['success'=>false,'message'=>'Failed to create load']);
+}

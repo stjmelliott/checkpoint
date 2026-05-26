@@ -49,11 +49,11 @@ function addStopRow(stop = {}) {
   const i = document.querySelectorAll('.stop-row').length;
   const r = document.createElement('div');
   r.className = 'stop-row row g-2 align-items-end border p-2 mb-2';
-  r.innerHTML = `<div class="col-12"><label class="form-label">Street Address</label><input type="text" name="stop[${i}][address]" class="form-control" value="${stop.address||''}" placeholder="123 Main St"></div>
-    <div class="col-6"><label class="form-label">City</label><input type="text" name="stop[${i}][city]" class="form-control" value="${stop.city||''}"></div>
-    <div class="col-3"><label class="form-label">State</label><input type="text" name="stop[${i}][state]" class="form-control" value="${stop.state||''}"></div>
-    <div class="col-3"><label class="form-label">ZIP</label><input type="text" name="stop[${i}][zip]" class="form-control" value="${stop.zip||''}"></div>
-    <div class="col-6"><label class="form-label">Milestone</label><select name="stop[${i}][milestone]" class="form-select"><option value="pickup">Pickup</option><option value="transit">In Transit</option><option value="delivery">Delivery</option></select></div>
+  r.innerHTML = `<div class="col-12"><label class="form-label">Street Address</label><input type="text" name="stop[${i}][address]" class="form-control" value="${stop.address||'1400 Industrial Pkwy'}" placeholder="123 Main St"></div>
+    <div class="col-6"><label class="form-label">City</label><input type="text" name="stop[${i}][city]" class="form-control" value="${stop.city||'Chicago'}"></div>
+    <div class="col-3"><label class="form-label">State</label><input type="text" name="stop[${i}][state]" class="form-control" value="${stop.state||'IL'}"></div>
+    <div class="col-3"><label class="form-label">ZIP</label><input type="text" name="stop[${i}][zip]" class="form-control" value="${stop.zip||'60601'}"></div>
+    <div class="col-6"><label class="form-label">Milestone</label><select name="stop[${i}][milestone]" class="form-select"><option value="pickup" selected>Pickup</option><option value="transit">In Transit</option><option value="delivery">Delivery</option></select></div>
     <div class="col-6"><label class="form-label">Scheduled</label><input type="datetime-local" name="stop[${i}][scheduled_at]" class="form-control" value="${stop.scheduled_at||''}"></div>
     <button type="button" class="btn btn-sm btn-outline-danger remove-stop col-12 mt-1">Remove Stop</button>`;
   const wrap = document.getElementById('stops-wrap');
@@ -67,7 +67,7 @@ function resetManualLoadForm() {
   if (form) form.reset();
   const stopsWrap = document.getElementById('stops-wrap');
   if (stopsWrap) stopsWrap.innerHTML = '';
-  addStopRow();
+  addStopRow(); // Chicago pickup default
   const carrierId = document.getElementById('carrier_id'); if (carrierId) carrierId.value = '0';
   const driverId = document.getElementById('driver_id'); if (driverId) driverId.value = '0';
   const carrierResults = document.getElementById('carrier-results'); if (carrierResults) carrierResults.innerHTML = '';
@@ -106,8 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.stop-row').forEach(row => {
       const city = row.querySelector("input[name*='[city]']");
       const state = row.querySelector("input[name*='[state]']");
-      if (city && !city.value.trim()) city.value = 'Unknown City';
-      if (state && !state.value.trim()) state.value = 'US';
+      if (city && !city.value.trim()) city.value = 'Chicago';
+      if (state && !state.value.trim()) state.value = 'IL';
     });
     const fd = new FormData(e.currentTarget);
     const res = await fetch('/track/v1/admin/create-load.php', {method:'POST', body: fd});

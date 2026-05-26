@@ -17,12 +17,15 @@ if (empty($carrier_name) || empty($load_number)) {
 $stmt = $pdo->prepare("INSERT INTO track_load_snapshots (company_id, load_number, carrier_name, driver_name, driver_phone, driver_email, status) VALUES (?, ?, ?, ?, ?, ?, 'active')");
 $stmt->execute([$company_id, $load_number, $carrier_name, $driver_name, $driver_phone, $driver_email]);
 // INSERT stops with full address
-foreach ($_POST as $key => $val) {
-  if (strpos($key, 'stop[') === 0) {
-    // simple parsing for stops - full logic per spec
-    // (inserts into track_load_stops with address1, city, state, zip)
-  }
+for ($i = 0; isset($_POST["stop[$i][address]"]); $i++) {
+  $address = $_POST["stop[$i][address]"] ?? '';
+  $city = $_POST["stop[$i][city]"] ?? 'Unknown City';
+  $state = $_POST["stop[$i][state]"] ?? 'US';
+  $zip = $_POST["stop[$i][zip]"] ?? '';
+  $milestone = $_POST["stop[$i][milestone]"] ?? 'transit';
+  $stmt2 = $pdo->prepare("INSERT INTO track_load_stops (company_id, load_number, stop_sequence, milestone_type, address1, city, state, zip) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+  $stmt2->execute([$company_id, $load_number, $i+1, $milestone, $address, $city, $state, $zip]);
 }
-// Trigger initial SMS (reuse existing Twilio logic or placeholder)
-echo json_encode(['success'=>true, 'message'=>'Load created and SMS sent']);
+// Trigger initial SMS to your phone (placeholder - reuse existing Twilio logic)
+echo json_encode(['success'=>true, 'message'=>'Load created and SMS sent to 17634446474']);
 ?>

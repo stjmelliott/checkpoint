@@ -1,5 +1,11 @@
 <?php 
 require_once '../config/bootstrap.php'; 
+session_start();
+if (!isset($_SESSION['admin_authenticated']) || !isset($_SESSION['company_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
 $stmt = $pdo->prepare("SELECT credential_value FROM app_credentials WHERE service_name='checkpoint' AND credential_key='load_entry_mode' LIMIT 1");
 $stmt->execute();
 $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';

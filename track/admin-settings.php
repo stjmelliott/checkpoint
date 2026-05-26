@@ -1,8 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['company_id'])) {
-  // Dev bypass - remove this line after testing
-  $_SESSION['company_id'] = 1; // temporary for development
+  $_SESSION['company_id'] = 1; // temporary dev bypass - remove after testing
 }
 require_once __DIR__ . '/../config/bootstrap.php';
 

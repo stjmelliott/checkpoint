@@ -67,7 +67,8 @@ function resetManualLoadForm() {
   if (form) form.reset();
   const stopsWrap = document.getElementById('stops-wrap');
   if (stopsWrap) stopsWrap.innerHTML = '';
-  addStopRow(); // Chicago pickup default
+  addStopRow({address:'1400 Industrial Pkwy', city:'Chicago', state:'IL', zip:'60601', milestone:'pickup'});
+  addStopRow({address:'2200 Commerce Dr', city:'Dallas', state:'TX', zip:'75201', milestone:'delivery'});
   const carrierId = document.getElementById('carrier_id'); if (carrierId) carrierId.value = '0';
   const driverId = document.getElementById('driver_id'); if (driverId) driverId.value = '0';
   const carrierResults = document.getElementById('carrier-results'); if (carrierResults) carrierResults.innerHTML = '';
@@ -103,12 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     const driverPhone = document.getElementById('driver_phone');
     if (driverPhone) driverPhone.value = normalizePhone(driverPhone.value || '');
-    document.querySelectorAll('.stop-row').forEach(row => {
-      const city = row.querySelector("input[name*='[city]']");
-      const state = row.querySelector("input[name*='[state]']");
-      if (city && !city.value.trim()) city.value = 'Chicago';
-      if (state && !state.value.trim()) state.value = 'IL';
-    });
     const fd = new FormData(e.currentTarget);
     const res = await fetch('/track/v1/admin/create-load.php', {method:'POST', body: fd});
     const data = await res.json().catch(() => ({}));

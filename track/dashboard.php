@@ -47,7 +47,7 @@ $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';
     <button onclick="clearTrail()" style="margin-top:15px; width:100%;">Clear Trail</button>
 </div>
 
-<div class="modal fade" id="addLoadModal" tabindex="-1" aria-labelledby="addLoadModalLabel" aria-hidden="true" data-bs-backdrop="static">
+<div class="modal fade" id="addLoadModal" tabindex="-1" aria-labelledby="addLoadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-focus="false">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header manual-modal-head">

@@ -49,7 +49,7 @@ function addStopRow(stop = {}) {
   const i = document.querySelectorAll('.stop-row').length;
   const r = document.createElement('div');
   r.className = 'stop-row row g-2 align-items-end border p-2 mb-2';
-  r.innerHTML = `<div class="col-12"><label class="form-label">Street Address</label><input type="text" name="stop[${i}][address]" class="form-control" value="${stop.address||'1400 Industrial Pkwy'}" placeholder="123 Main St"></div>
+  r.innerHTML = `<div class="col-12"><label class="form-label">Street Address</label><input type="text" name="stop[${i}][address]" class="form-control" value="${stop.address||'1400 Industrial Pkwy'}" placeholder="1400 Industrial Pkwy"></div>
     <div class="col-6"><label class="form-label">City</label><input type="text" name="stop[${i}][city]" class="form-control" value="${stop.city||'Chicago'}"></div>
     <div class="col-3"><label class="form-label">State</label><input type="text" name="stop[${i}][state]" class="form-control" value="${stop.state||'IL'}"></div>
     <div class="col-3"><label class="form-label">ZIP</label><input type="text" name="stop[${i}][zip]" class="form-control" value="${stop.zip||'60601'}"></div>

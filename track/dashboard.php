@@ -54,86 +54,51 @@ $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';
                 <h5 class="modal-title" id="addLoadModalLabel">Manual Load Wizard</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="manual-load-form" class="modal-body">
-                <input type="hidden" name="carrier_id" id="carrier_id" value="0">
-                <input type="hidden" name="driver_id" id="driver_id" value="0">
-
-                <div class="manual-panel" data-panel="1">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h6 class="mb-0 fw-semibold">1. Carrier Info</h6>
-                        <small class="text-muted">Required: carrier name and DOT</small>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-12 col-lg-7">
-                            <label for="carrier_name" class="form-label">Carrier Name</label>
-                            <input class="form-control" type="text" name="carrier_name" id="carrier_name" placeholder="Start typing legal or DBA carrier name" aria-describedby="carrierNameHelp">
-                            <div id="carrierNameHelp" class="form-text">Use the FMCSA search if exact spelling is unknown.</div>
-                            <div id="carrier-results" class="carrier-results mt-2"></div>
-                        </div>
-                        <div class="col-12 col-lg-5">
-                            <label for="dot_number" class="form-label d-flex align-items-center gap-2">DOT Number
-                                <span class="text-muted" data-bs-toggle="tooltip" title="US DOT numbers are usually 5–8 digits.">ⓘ</span>
-                            </label>
-                            <input class="form-control" type="text" name="dot_number" id="dot_number" placeholder="e.g. 1234567" inputmode="numeric">
-                        </div>
-                        <div class="col-12 d-flex flex-wrap gap-2">
-                            <button type="button" id="fmcsa-btn" class="btn btn-outline-primary" onclick="searchFmcsa()">Search FMCSA</button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('carrier_id').value='0';">Use Manual Carrier Entry</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="manual-panel hidden d-none" data-panel="2">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h6 class="mb-0 fw-semibold">2. Driver Info</h6>
-                        <small class="text-muted">Optional / forgiving</small>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label for="driver_select" class="form-label">Driver Profile (optional)</label>
-                            <select id="driver_select" class="form-select">
-                                <option value="0">+ New Driver</option>
-                            </select>
-                        </div>
-                        <div id="new-driver-form" class="new-driver-form row g-3">
-                            <div class="col-12 col-md-6">
-                                <label for="driver_phone" class="form-label">Driver Phone</label>
-                                <input class="form-control" type="text" name="driver_phone" id="driver_phone" placeholder="(555) 123-4567 or 5551234567">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label for="driver_name" class="form-label">Driver Name</label>
-                                <input class="form-control" type="text" name="driver_name" id="driver_name" placeholder="Any readable name format">
-                            </div>
-                            <div class="col-12">
-                                <label for="driver_email" class="form-label">Driver Email (optional)</label>
-                                <input class="form-control" type="email" name="driver_email" id="driver_email" placeholder="name@example.com">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="manual-panel hidden d-none" data-panel="3">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h6 class="mb-0 fw-semibold">3. Load Details</h6>
-                        <small class="text-muted">Add as much detail as you have</small>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6">
-                            <label for="load_number" class="form-label">Load Number</label>
-                            <input class="form-control" type="text" name="load_number" id="load_number" placeholder="Internal reference or broker load #">
-                        </div>
-                        <div class="col-12">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <label class="form-label mb-0">Stops</label>
-                                <button type="button" id="add-stop-btn" class="btn btn-success btn-sm" onclick="addStopRow()">+ Add Stop</button>
-                            </div>
-                            <div id="stops-wrap"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="manual-error mt-3" id="manual-error"></div>
-            </form>
+            <form id="manual-load-form" class="modal-body p-4">
+  <input type="hidden" name="carrier_id" id="carrier_id" value="0">
+  <input type="hidden" name="driver_id" id="driver_id" value="0">
+  <!-- Carrier + DOT side-by-side -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-7">
+      <label for="carrier_name" class="form-label">Carrier Name <span class="text-danger">*</span></label>
+      <input class="form-control" type="text" name="carrier_name" id="carrier_name" placeholder="Start typing legal or DBA carrier name">
+      <div id="carrier-results" class="carrier-results mt-2"></div>
+    </div>
+    <div class="col-12 col-lg-5">
+      <label for="dot_number" class="form-label">DOT Number <span class="text-muted">(optional)</span></label>
+      <input class="form-control" type="text" name="dot_number" id="dot_number" placeholder="e.g. 1234567" inputmode="numeric">
+    </div>
+    <button type="button" id="fmcsa-btn" class="btn btn-outline-primary w-100" onclick="searchFmcsa()">🔎 Search FMCSA</button>
+  </div>
+  <!-- Driver Info -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+      <label for="driver_phone" class="form-label">Driver Phone</label>
+      <input class="form-control" type="tel" name="driver_phone" id="driver_phone" value="17634446474" placeholder="17634446474 or driver's number">
+    </div>
+    <div class="col-12 col-md-6">
+      <label for="driver_name" class="form-label">Driver Name</label>
+      <input class="form-control" type="text" name="driver_name" id="driver_name" placeholder="John Doe">
+    </div>
+    <div class="col-12">
+      <label for="driver_email" class="form-label">Driver Email (optional)</label>
+      <input class="form-control" type="email" name="driver_email" id="driver_email" placeholder="name@example.com">
+    </div>
+  </div>
+  <!-- Load Details + Stops -->
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      <label for="load_number" class="form-label">Load Number <span class="text-danger">*</span></label>
+      <input class="form-control" type="text" name="load_number" id="load_number" placeholder="Internal or broker #">
+    </div>
+    <div class="col-12">
+      <label class="form-label">Stops</label>
+      <div id="stops-wrap"></div>
+      <button type="button" id="add-stop-btn" class="btn btn-success btn-sm mt-2" onclick="addStopRow()">+ Add Stop</button>
+    </div>
+  </div>
+  <div class="manual-error mt-3" id="manual-error"></div>
+</form>
             <div class="modal-footer manual-actions">
                 <button type="button" id="modalClearFormBtn" class="btn-clear-form">Clear Form / Start Over</button>
                 <button type="button" id="manual-back-btn" class="btn btn-outline-primary">Back</button>

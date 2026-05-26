@@ -85,7 +85,7 @@ function resetManualLoadForm() {
 } 
 async function searchFmcsa(){const q=document.getElementById('carrier_name').value.trim();if(q.length<2){err('Enter at least 2 characters.');return;}const r=await fetch('/track/v1/admin/fmcsa-search.php?q='+encodeURIComponent(q));const data=await r.json();const box=document.getElementById('carrier-results');box.innerHTML='';(data||[]).forEach(item=>{const b=document.createElement('button');b.type='button';b.className='carrier-result';b.textContent=`${item.legal_name} (${item.dot_number})`;b.onclick=()=>{carrier_id.value='0';carrier_name.value=item.legal_name||'';dot_number.value=item.dot_number||'';box.innerHTML='';};box.appendChild(b);});}
 async function loadDrivers(){const carrierId=+document.getElementById('carrier_id').value||0;if(carrierId<=0)return;const r=await fetch('/track/v1/admin/carrier-drivers.php?carrier_id='+carrierId);const data=await r.json();const sel=document.getElementById('driver_select');sel.innerHTML='<option value="0">+ New Driver</option>';(data||[]).forEach(d=>{const op=document.createElement('option');op.value=String(d.id);op.textContent=`${d.driver_name} (${d.driver_phone})`;op.dataset.name=d.driver_name||'';op.dataset.phone=d.driver_phone||'';op.dataset.email=d.driver_email||'';sel.appendChild(op);});}
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded', () => {
   loadDashboardData(activeStatus);
   document.querySelectorAll('.status-tab').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -100,4 +100,45 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
   setInterval(() => loadDashboardData(activeStatus), 15000);
 
-  const modal=document.getElementById('addLoadModal'); if(!modal) return; showPanel(1); if(document.querySelectorAll('.stop-row').length===0){addStopRow({milestone:'pickup'});addStopRow({milestone:'delivery'});} document.getElementById('fmcsa-btn').onclick=searchFmcsa; document.getElementById('manual-next-btn').onclick=()=>{if(!panelValid(manualPanel)){err('Carrier name, load number, and a 10-digit driver phone are required.');return;} err(''); if(manualPanel===1)loadDrivers(); showPanel(Math.min(3,manualPanel+1));}; document.getElementById('manual-back-btn').onclick=()=>showPanel(Math.max(1,manualPanel-1)); document.getElementById('add-stop-btn').onclick=()=>addStopRow(); document.getElementById('modalClearFormBtn').addEventListener('click',resetManualLoadForm); modal.addEventListener('hidden.bs.modal',resetManualLoadForm); const driverSelect=document.getElementById('driver_select');if(driverSelect)driverSelect.onchange=(e)=>{const isNew=e.target.value==='0';const driverId=document.getElementById('driver_id');if(driverId)driverId.value=e.target.value;const newDriverForm=document.getElementById('new-driver-form');if(newDriverForm)newDriverForm.style.display=isNew?'block':'none';if(!isNew){const op=e.target.selectedOptions[0];driver_name.value=op.dataset.name||'';driver_phone.value=op.dataset.phone||'';driver_email.value=op.dataset.email||'';}}; document.getElementById('manual-load-form').addEventListener('submit',async e=>{e.preventDefault();if(!panelValid(1)||!panelValid(2)||!panelValid(3)){err('Carrier name, load number, and a 10-digit driver phone are required.');return;}document.querySelectorAll('.stop-row').forEach((row)=>{const c=row.querySelector("input[name*='[city]']");const s=row.querySelector("input[name*='[state]']");if(c&&!c.value.trim())c.value='Unknown City';if(s&&!s.value.trim())s.value='US';});driver_phone.value=normalizePhone(driver_phone.value);const fd=new FormData(e.currentTarget);const res=await fetch('/track/v1/admin/create-load.php',{method:'POST',body:fd});const data=await res.json().catch(()=>({}));if(!res.ok||data.success===false){err(data.message||'Failed to create load');return;}bootstrap.Modal.getOrCreateInstance(modal).hide();resetManualLoadForm();loadDashboardData(activeStatus);});});
+  const modal = document.getElementById('addLoadModal');
+  if (!modal) return;
+
+  // Initial setup for flat single-screen form
+  document.getElementById('fmcsa-btn').onclick = searchFmcsa;
+  document.getElementById('add-stop-btn').onclick = () => addStopRow();
+
+  // Clear button
+  const clearBtn = document.getElementById('modalClearFormBtn');
+  if (clearBtn) clearBtn.addEventListener('click', resetManualLoadForm);
+
+  // Modal close cleanup
+  modal.addEventListener('hidden.bs.modal', resetManualLoadForm);
+
+  // Form submit
+  document.getElementById('manual-load-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const driverPhone = document.getElementById('driver_phone');
+    if (driverPhone) driverPhone.value = normalizePhone(driverPhone.value || '');
+
+    // Ensure stops have city/state defaults
+    document.querySelectorAll('.stop-row').forEach(row => {
+      const city = row.querySelector("input[name*='[city]']");
+      const state = row.querySelector("input[name*='[state]']");
+      if (city && !city.value.trim()) city.value = 'Unknown City';
+      if (state && !state.value.trim()) state.value = 'US';
+    });
+
+    const fd = new FormData(e.currentTarget);
+    const res = await fetch('/track/v1/admin/create-load.php', { method: 'POST', body: fd });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || data.success === false) {
+      err(data.message || 'Failed to create load');
+      return;
+    }
+
+    bootstrap.Modal.getOrCreateInstance(modal).hide();
+    resetManualLoadForm();
+    loadDashboardData(activeStatus);
+  });
+});

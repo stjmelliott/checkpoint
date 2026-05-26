@@ -43,6 +43,7 @@ $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';
         <button class="status-tab" onclick="filterByStatus('all', this)">All</button>
     </div>
     
+    <button onclick="window.location.href='admin-settings.php'" class="btn btn-outline-info w-100 mb-3">⚙️ Settings (FMCSA API Key)</button>
     <div id="load-list"></div>
     <button onclick="clearTrail()" style="margin-top:15px; width:100%;">Clear Trail</button>
 </div>
@@ -99,11 +100,9 @@ $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';
   </div>
   <div class="manual-error mt-3" id="manual-error"></div>
 </form>
-            <div class="modal-footer manual-actions">
-                <button type="button" id="modalClearFormBtn" class="btn-clear-form">Clear Form / Start Over</button>
-                <button type="button" id="manual-back-btn" class="btn btn-outline-primary">Back</button>
-                <button type="button" id="manual-next-btn" class="btn btn-success">Next</button>
-                <button type="submit" form="manual-load-form" id="manual-submit-btn" class="btn btn-success hidden d-none">Create Load</button>
+            <div class="modal-footer">
+                <button type="button" id="modalClearFormBtn" class="btn btn-secondary">Clear Form</button>
+                <button type="submit" form="manual-load-form" id="manual-submit-btn" class="btn btn-success btn-lg px-5">🚚 Send Load</button>
             </div>
         </div>
     </div>

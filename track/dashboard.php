@@ -17,6 +17,7 @@ $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';
 <body>
 
 <?php $checkpointHeaderCurrent = 'Live Map'; require_once __DIR__ . '/includes/header.php'; ?>
+<a href="admin-settings.php" class="checkpoint-nav-link">Settings</a>
 
 <div id="map"></div>
 
@@ -102,7 +103,7 @@ $load_entry_mode = $stmt->fetchColumn() ?: 'webhook';
 </form>
             <div class="modal-footer">
                 <button type="button" id="modalClearFormBtn" class="btn btn-secondary">Clear Form</button>
-                <button type="submit" form="manual-load-form" id="manual-submit-btn" class="btn btn-success btn-lg px-5">🚚 Send Load</button>
+                <button type="submit" form="manual-load-form" class="btn btn-success btn-lg px-5">🚚 Send Load</button>
             </div>
         </div>
     </div>

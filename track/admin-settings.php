@@ -42,43 +42,35 @@ $fmcsaApiKey = (string)($stmt->fetchColumn() ?: '');
         <h1>Admin Settings</h1>
         <p class="subtle">Configure system credentials for tenant #<?= htmlspecialchars((string)$companyId) ?>.</p>
         <div class="card">
-  <div class="card-header"><h5><i class="bi bi-key"></i> Edit FMCSA API Credential</h5></div>
+  <div class="card-header"><h5>Edit FMCSA API Credential</h5></div>
   <div class="card-body">
     <form method="post">
       <input type="hidden" name="id" value="<?php echo $id ?? ''; ?>">
       <div class="row g-3">
         <div class="col-12 col-md-6">
-          <label class="form-label">Service Name <span class="text-danger">*</span></label>
-          <select name="service_name" class="form-select" required>
-            <option value="fmcsa" selected>FMCSA (Federal Motor Carrier Safety Administration)</option>
-          </select>
+          <label>Service Name</label>
+          <select name="service_name" class="form-select" required><option value="fmcsa" selected>FMCSA</option></select>
         </div>
         <div class="col-12 col-md-6">
-          <label class="form-label">Credential Key <span class="text-danger">*</span></label>
+          <label>Credential Key</label>
           <input type="text" name="credential_key" class="form-control" value="FMCSA_API_KEY" readonly>
         </div>
         <div class="col-12">
-          <label class="form-label">API Key Value <span class="text-danger">*</span></label>
+          <label>API Key Value</label>
           <div class="input-group">
             <input type="password" name="credential_value" id="api-key-input" class="form-control" value="<?php echo htmlspecialchars($credential_value ?? ''); ?>" required>
             <button class="btn btn-outline-secondary" type="button" onclick="toggleApiKeyVisibility()">👁️</button>
           </div>
         </div>
         <div class="col-12">
-          <label class="form-label">Description / Comment</label>
+          <label>Description</label>
           <textarea name="comment" class="form-control" rows="2"><?php echo htmlspecialchars($comment ?? ''); ?></textarea>
         </div>
-        <div class="col-12">
-          <label class="form-label">Last Updated</label>
-          <input type="text" class="form-control" value="<?php echo $updated_at ?? 'Now'; ?>" readonly>
-        </div>
       </div>
-      <div class="d-flex gap-2 mt-4">
-        <button type="submit" name="save_credential" class="btn btn-success btn-lg px-5">💾 Save to system_credentials</button>
-        <a href="admin-settings.php" class="btn btn-secondary">Cancel</a>
-      </div>
+      <button type="submit" name="save_credential" class="btn btn-success btn-lg mt-3">Save to system_credentials</button>
     </form>
   </div>
+</div>
 </div>
 </div>
     </div>
@@ -88,10 +80,6 @@ $fmcsaApiKey = (string)($stmt->fetchColumn() ?: '');
 function toggleApiKeyVisibility() {
   const input = document.getElementById('api-key-input');
   if (input) input.type = input.type === 'password' ? 'text' : 'password';
-}
-function testFmcsaConnection() {
-  alert('✅ FMCSA connection test coming soon (will call /v1/admin/fmcsa-search.php)');
-  // Future: real test endpoint
 }
 </script>
 </body>

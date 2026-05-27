@@ -12,13 +12,13 @@ const DEFAULT_FORM = {
   dot_number: '1234567',
   driver_phone: '+17634446474',
   driver_name: 'John Doe',
-  driver_email: 'name@example.com',
+  driver_email: 'selliott@strongtco.com',
   load_number: 'EXP-10001'
 };
 
 const DEFAULT_STOPS = [
-  {address:'123 Pickup Ave', city:'Dallas', state:'TX', zip:'75201', milestone:'pickup', scheduled_at:''},
-  {address:'789 Delivery Rd', city:'Atlanta', state:'GA', zip:'30303', milestone:'delivery', scheduled_at:''}
+  {address:'UNKNOWN - Freight Transportation Pickup', city:'Unknown', state:'TX', zip:'00000', milestone:'pickup', scheduled_at:''},
+  {address:'Known Good - Freight Transportation Delivery', city:'Dallas', state:'TX', zip:'75201', milestone:'delivery', scheduled_at:''}
 ];
 
 function addStopRow(stop={address:'', city:'', state:'', zip:'', milestone:'transit', scheduled_at:''}) {

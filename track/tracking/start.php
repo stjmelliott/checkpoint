@@ -11,7 +11,8 @@ require_once __DIR__ . '/../../config/bootstrap.php';
     <style>
         body { background: #f8f9fa; font-family: system-ui, -apple-system, sans-serif; }
         .container { max-width: 540px; margin-top: 40px; }
-        .btn-checkin { font-size: 1.4rem; padding: 22px 20px; font-weight: 600; }
+        .btn-checkin { font-size: 1.4rem; padding: 22px 20px; font-weight: 700; background:#2E7D32;border-color:#2E7D32; }
+        .btn-retry{background:#E65100!important;border-color:#E65100!important;color:#fff!important;}
         .success-card { display: none; }
     </style>
 </head>
@@ -38,7 +39,7 @@ require_once __DIR__ . '/../../config/bootstrap.php';
         <div id="successScreen" class="success-card text-center mt-4">
             <div class="display-1 mb-3">✅</div>
             <h3 class="text-success">You're all set!</h3>
-            <p class="text-muted">Thank you. You can now close this page.</p>
+            <p class="text-muted">You can close this page.</p>
         </div>
     </div>
 
@@ -51,7 +52,7 @@ require_once __DIR__ . '/../../config/bootstrap.php';
         const validMilestones = ['pickup', 'transit', 'delivery'];
 
         if (!token || !validMilestones.includes(milestone) || isNaN(stopSeq) || stopSeq < 1) {
-            showExpiredMessage("This tracking link is not valid. Please contact your dispatcher.");
+            showExpiredMessage("This link is not valid. Please contact your dispatcher.");
         } else {
             initPage(token, milestone, stopSeq);
         }
@@ -119,7 +120,7 @@ require_once __DIR__ . '/../../config/bootstrap.php';
                 }
             })
             .catch(() => {
-                showMessage("Location saved but couldn't send. Tap Retry.");
+                showMessage("Location saved but couldn't send. Tap Retry to upload.");
                 setButtonState('retry', token, milestone, stopSeq);
             });
         }
@@ -127,10 +128,18 @@ require_once __DIR__ . '/../../config/bootstrap.php';
         function handleGeoError(err, token, milestone, stopSeq) {
             if (err.code === err.PERMISSION_DENIED) {
                 showExpiredMessage("Please allow location access in your browser settings, then reload this page.");
-            } else {
-                showMessage("Having trouble getting location. Tap Retry.");
-                setButtonState('retry', token, milestone, stopSeq);
+                return;
             }
+            if (err.code === err.TIMEOUT) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => sendPingToServer(pos, token, milestone, stopSeq),
+                    () => { showMessage("Having trouble finding your location. Tap Retry or step outside."); setButtonState('retry', token, milestone, stopSeq); },
+                    { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+                );
+                return;
+            }
+            showMessage("Can't get your location right now. Tap Retry to try again.");
+            setButtonState('retry', token, milestone, stopSeq);
         }
 
         function renderSuccessUI() {
@@ -152,7 +161,7 @@ require_once __DIR__ . '/../../config/bootstrap.php';
             if (state === 'retry') {
                 btn.textContent = 'Try Again';
                 btn.classList.remove('btn-success');
-                btn.classList.add('btn-warning');
+                btn.classList.add('btn-retry');
                 btn.onclick = () => captureMilestoneLocation(token, milestone, stopSeq);
             }
             btn.disabled = false;

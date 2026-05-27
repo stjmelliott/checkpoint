@@ -17,8 +17,8 @@ const DEFAULT_FORM = {
 };
 
 const DEFAULT_STOPS = [
-  {address:'UNKNOWN - Freight Transportation Pickup', city:'Unknown', state:'TX', zip:'00000', milestone:'pickup', scheduled_at:''},
-  {address:'Known Good - Freight Transportation Delivery', city:'Dallas', state:'TX', zip:'75201', milestone:'delivery', scheduled_at:''}
+  {address:'MANNING TRANSFER, INC. 2775 101ST AVENUE NE', city:'Blaine', state:'MN', zip:'55449', milestone:'pickup', scheduled_at:''},
+  {address:'CENAIKO EXPO INC 9697 EAST RIVER RD', city:'Coon Rapids', state:'MN', zip:'55433', milestone:'delivery', scheduled_at:''}
 ];
 
 function addStopRow(stop={address:'', city:'', state:'', zip:'', milestone:'transit', scheduled_at:''}) {

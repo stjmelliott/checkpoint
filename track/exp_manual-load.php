@@ -1,5 +1,79 @@
 <?php
-require_once '../config/bootstrap.php';
+$expManualDebugLog = [];
+
+function expManualDebugLog(string $message, array $context = []): void
+{
+    global $expManualDebugLog;
+
+    $timestamp = date('Y-m-d H:i:s');
+    $entry = [
+        'time' => $timestamp,
+        'message' => $message,
+        'context' => $context,
+    ];
+
+    $expManualDebugLog[] = $entry;
+
+    $contextJson = $context !== [] ? json_encode($context, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : '{}';
+    error_log('[EXP_MANUAL_LOAD][' . $timestamp . '] ' . $message . ' ' . $contextJson);
+}
+
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+
+set_error_handler(function (int $severity, string $message, string $file, int $line): bool {
+    expManualDebugLog('PHP runtime warning/error captured.', [
+        'severity' => $severity,
+        'message' => $message,
+        'file' => $file,
+        'line' => $line,
+    ]);
+
+    return false;
+});
+
+set_exception_handler(function (Throwable $exception): void {
+    expManualDebugLog('Uncaught exception captured.', [
+        'message' => $exception->getMessage(),
+        'file' => $exception->getFile(),
+        'line' => $exception->getLine(),
+        'trace' => $exception->getTraceAsString(),
+    ]);
+
+    http_response_code(500);
+    echo '<h1 style="color:#ef4444;font-family:sans-serif;">EXP Manual Load Debug: Unhandled Exception</h1>';
+    echo '<pre style="background:#111;color:#f8fafc;padding:12px;border-radius:8px;white-space:pre-wrap;">';
+    echo htmlspecialchars($exception->getMessage() . "\n\n" . $exception->getTraceAsString(), ENT_QUOTES, 'UTF-8');
+    echo '</pre>';
+});
+
+register_shutdown_function(function (): void {
+    $fatalError = error_get_last();
+
+    if ($fatalError !== null) {
+        expManualDebugLog('Shutdown fatal error detected.', $fatalError);
+    }
+});
+
+expManualDebugLog('Page bootstrap started.', [
+    'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN',
+    'request_uri' => $_SERVER['REQUEST_URI'] ?? 'UNKNOWN',
+    'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? 'UNKNOWN',
+    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'UNKNOWN',
+]);
+
+try {
+    require_once '../config/bootstrap.php';
+    expManualDebugLog('Bootstrap loaded successfully.', ['file' => '../config/bootstrap.php']);
+} catch (Throwable $exception) {
+    expManualDebugLog('Bootstrap load failed.', [
+        'message' => $exception->getMessage(),
+        'file' => $exception->getFile(),
+        'line' => $exception->getLine(),
+    ]);
+    throw $exception;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +104,21 @@ require_once '../config/bootstrap.php';
     </style>
 </head>
 <body>
-<?php $checkpointHeaderCurrent = 'EXP Manual Load Wizard'; require_once __DIR__ . '/includes/header.php'; ?>
+<?php
+$checkpointHeaderCurrent = 'EXP Manual Load Wizard';
+
+try {
+    require_once __DIR__ . '/includes/header.php';
+    expManualDebugLog('Header include loaded successfully.', ['file' => __DIR__ . '/includes/header.php']);
+} catch (Throwable $exception) {
+    expManualDebugLog('Header include failed.', [
+        'message' => $exception->getMessage(),
+        'file' => $exception->getFile(),
+        'line' => $exception->getLine(),
+    ]);
+    throw $exception;
+}
+?>
 
 <div class="container py-4 exp-manual-screen" style="max-width: 1100px;">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -43,6 +131,21 @@ require_once '../config/bootstrap.php';
             <h5 class="mb-0">Create Load + Send Driver Text</h5>
         </div>
         <div class="card-body p-4 exp-manual-scroll">
+            <div class="alert alert-secondary border border-warning-subtle text-light mb-4" style="background:#111827;">
+                <h6 class="mb-2 text-warning">Debug Log (live for this request)</h6>
+                <pre class="mb-0" style="max-height:260px;overflow:auto;white-space:pre-wrap;"><?php
+                    foreach ($expManualDebugLog as $debugEntry) {
+                        echo htmlspecialchars('[' . $debugEntry['time'] . '] ' . $debugEntry['message'], ENT_QUOTES, 'UTF-8') . "\n";
+
+                        if (!empty($debugEntry['context'])) {
+                            echo htmlspecialchars(json_encode($debugEntry['context'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8') . "\n";
+                        }
+
+                        echo "\n";
+                    }
+                ?></pre>
+            </div>
+
             <form id="manual-load-form">
                 <input type="hidden" name="carrier_id" id="carrier_id" value="0">
                 <input type="hidden" name="driver_id" id="driver_id" value="0">

@@ -8,7 +8,7 @@ function success(msg){document.getElementById('manual-success').textContent=msg|
 function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 
 const DEFAULT_FORM = {
-  carrier_name: 'Exspeedite Logistics',
+  carrier_name: 'MANNING TRANSFER, INC.',
   dot_number: '1234567',
   driver_phone: '+17634446474',
   driver_name: 'John Doe',

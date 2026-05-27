@@ -257,7 +257,7 @@ try {
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-lg-7">
                         <label for="carrier_name" class="form-label">Carrier Name <span class="text-danger">*</span></label>
-                        <input class="form-control" type="text" name="carrier_name" id="carrier_name" value="Exspeedite Logistics" placeholder="Start typing legal or DBA carrier name">
+                        <input class="form-control" type="text" name="carrier_name" id="carrier_name" value="MANNING TRANSFER, INC." placeholder="Start typing legal or DBA carrier name">
                         <div id="carrier-results" class="carrier-results mt-2"></div>
                     </div>
                     <div class="col-12 col-lg-5">
@@ -308,6 +308,6 @@ try {
     </div>
 </div>
 
-<script src="js/exp_manual-load.js"></script>
+<script src="js/exp_manual-load.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

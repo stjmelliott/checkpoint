@@ -7,6 +7,20 @@ function err(msg){document.getElementById('manual-error').textContent=msg||'';}
 function success(msg){document.getElementById('manual-success').textContent=msg||'';}
 function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 
+const DEFAULT_FORM = {
+  carrier_name: 'Exspeedite Logistics',
+  dot_number: '1234567',
+  driver_phone: '+17634446474',
+  driver_name: 'John Doe',
+  driver_email: 'name@example.com',
+  load_number: 'EXP-10001'
+};
+
+const DEFAULT_STOPS = [
+  {address:'123 Pickup Ave', city:'Dallas', state:'TX', zip:'75201', milestone:'pickup', scheduled_at:''},
+  {address:'789 Delivery Rd', city:'Atlanta', state:'GA', zip:'30303', milestone:'delivery', scheduled_at:''}
+];
+
 function addStopRow(stop={address:'', city:'', state:'', zip:'', milestone:'transit', scheduled_at:''}) {
   const wrap = document.getElementById('stops-wrap');
   const i = wrap.querySelectorAll('.stop-row').length;
@@ -30,8 +44,11 @@ function resetForm(){
   document.getElementById('driver_id').value='0';
   document.getElementById('carrier-results').innerHTML='';
   document.getElementById('stops-wrap').innerHTML='';
-  addStopRow({milestone:'pickup'});
-  addStopRow({milestone:'delivery'});
+  Object.entries(DEFAULT_FORM).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+  });
+  DEFAULT_STOPS.forEach(addStopRow);
   err(''); success('');
 }
 

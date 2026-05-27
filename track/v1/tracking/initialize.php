@@ -10,21 +10,22 @@ if (preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
     $bearerToken = trim($matches[1]);
 }
 
-$stmt = $pdo->prepare("SELECT credential_value FROM app_credentials WHERE service_name='checkpoint' AND credential_key='webhook_bearer_token' LIMIT 1");
+$stmt = $pdo->prepare("SELECT company_id, credential_value FROM app_credentials WHERE service_name='checkpoint' AND credential_key='webhook_bearer_token'");
 $stmt->execute();
-$expectedToken = trim((string)$stmt->fetchColumn());
+$companyId = 0;
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    if ($bearerToken !== '' && hash_equals(trim((string)$row['credential_value']), $bearerToken)) {
+        $companyId = (int)($row['company_id'] ?? 0);
+        break;
+    }
+}
 
-if ($expectedToken === '' || $bearerToken === '' || !hash_equals($expectedToken, $bearerToken)) {
+if ($companyId <= 0) {
     http_response_code(401);
     echo json_encode([
         'success' => false,
-        'status' => 'unauthorized',
-        'load_number' => '',
-        'tracking_url' => '',
-        'sms_sent' => false,
-        'email_sent' => false,
-        'error_code' => 'UNAUTHORIZED',
-        'message' => 'Invalid bearer token',
+        'error_code' => 'INVALID_BEARER_TOKEN',
+        'message' => 'The API authorization token is invalid or has expired.',
     ]);
     exit;
 }
@@ -35,22 +36,13 @@ if (!is_array($payload)) {
     $payload = $_POST;
 }
 
-$companyId = (int)($payload['company_id'] ?? 0);
-if ($companyId <= 0) {
+$result = run_initialize($payload, $companyId, $pdo);
+if ($result['success']) {
+    http_response_code(200);
+} elseif (($result['error_code'] ?? '') === 'LOAD_ALREADY_ACTIVE') {
+    http_response_code(409);
+} else {
     http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'status' => 'failed',
-        'load_number' => (string)($payload['load_number'] ?? ''),
-        'tracking_url' => '',
-        'sms_sent' => false,
-        'email_sent' => false,
-        'error_code' => 'VALIDATION_ERROR',
-        'message' => 'company_id is required',
-    ]);
-    exit;
 }
 
-$result = run_initialize($payload, $companyId, $pdo);
-http_response_code($result['success'] ? 200 : 400);
 echo json_encode($result);
